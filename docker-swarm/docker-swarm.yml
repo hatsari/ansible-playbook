@@ -1,0 +1,40 @@
+---
+- hosts: rhel71
+  tasks:
+  - name: initialize docker swarm
+    shell: "docker swarm init --secret redhat"
+    ignore_errors: yes
+
+  - name: join client
+    connection: local
+    shell: ssh rhel72 "docker swarm join 192.168.56.220:2377 --secret redhat"
+
+  - name: view docker swarm status
+    shell: "docker node ls"
+    register: docker_status
+
+  - name: print docker swarm status 
+    debug: msg="swarm node status= {{ item }}"
+    with_items: docker_status.stdout_lines
+
+  - name: create docker overlay network
+    shell: "docker network create -d overlay app1-net"
+
+  - name: view docker net status
+    shell: "docker network ls"
+    register: docker_net
+
+  - name: print docker net status 
+    debug: msg="swarm net status= {{ item }}"
+    with_items: docker_net.stdout_lines
+
+  - name: create service
+    shell: "docker service create --name http --network app1-net --replicas 4 -p 80:80 nhttpd"
+
+#  - name: view LB VIP
+#    shell: docker service inspect http -format="{{.Endpoing.VirtualIPs}}"
+######
+## download docker 1.12: https://github.com/docker/docker/releases
+##                       "curl -fsSL https://test.docker.com/ | sh"
+## join the docker swarm
+## docker swarm join 192.168.56.220:2377 --secret redhat

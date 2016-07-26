@@ -1,0 +1,15 @@
+---
+- hosts: rhel71
+  tasks:
+
+  - name: delete service
+    shell: "docker service rm http"
+    ignore_errors: yes
+
+  - name: delete docker overlay network
+    shell: "docker network rm app1-net"
+    ignore_errors: yes
+
+  - name: leave docker swarm
+    shell: "docker swarm leave --force"
+    ignore_errors: yes
