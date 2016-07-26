@@ -29,7 +29,7 @@
     with_items: docker_net.stdout_lines
 
   - name: create service
-    shell: "docker service create --name http --network app1-net --replicas 4 -p 80:80 nhttpd"
+    shell: "docker service create --name http --network app1-net --replicas 4 -p 80:80 httpd"
 
 #  - name: view LB VIP
 #    shell: docker service inspect http -format="{{.Endpoing.VirtualIPs}}"
