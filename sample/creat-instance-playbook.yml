@@ -1,0 +1,18 @@
+---
+- name: create openstack instance
+  hosts: ctrl1
+  tasks:
+  - name: create instance
+    os_server:
+      name: ansible-cirros
+      state:  present
+      auth:
+        auth_url: http://ctrl1:35357/v2.0/
+        username: admin
+        password: fpemgot
+        project_name: admin
+      image: 2a00773e-ed23-42b2-8656-f891ff91390c
+      key_name: admin-key
+      timeout: 200
+      flavor: 1
+      nics: "net-name=priv-net"

@@ -1,0 +1,91 @@
+---
+- hosts: rhgs
+  tasks:
+  - name: install ganesha
+    yum:  
+      name=glusterfs-ganesha state=latest
+### all packages related with ganesha exist in RHGS ISO.
+
+#  - name: copy repo file 
+#    shell:
+#      echo "10.64.168.10    reposerver" >> /etc/hosts
+
+#  - name: add repo server
+#    copy:  
+#      src=/etc/ansible/playbook/templates/rhel7-all.repo dest=/etc/yum.repos.d/rhel7-all.repo owner=root group=root mode=644 backup=yes
+#
+
+  - name: copy ganesha-ha.conf
+    copy:  
+      src=ganesha-ha.conf dest=/etc/ganesha/ganesha-ha.conf 
+
+  - name: disable gluster-nfs
+    shell:
+      gluter volume set all cluster.enable-shared-storage enableluster volume set gvol1 nfs.disable on
+
+  - name: start pacemaker
+    shell:
+      systemctl enable pacemaker.service
+
+  - name: start pacemaker
+    shell:
+      systemctl start pcsd; systemctl enable pcsd
+
+  - name: set password of hacluster user
+    shell:
+      echo fpemgot | passwd --stdin hacluster
+
+  - name: check cluster auth
+    shell:
+      pcs cluster auth rhgs1 rhgs2
+      # expected results:
+      # rhgs1: Authorized
+      # rhgs2: Authorized
+
+  - name: enable nfs-ganesha
+    shell:
+      gluster nfs-ganesha enable
+
+  - name: verify cluster status
+    shell:
+      /usr/libexec/ganesha/ganesha-ha.sh --status
+# if you failed to have proper result(ie, vip unmanaged), 
+#   then re-enable nfs-ganesha (gluster nfs-ganesha disable; gluster nfs-ganesha enable)
+
+#  - name: export volume entire
+#     shell:
+#       gluster volume set gvol1 ganesha.enable on
+
+  - name: export subdirectory entire (before that, you should make subdirectory on vol)
+    copy:  
+      src=export.gvol1.conf dest=/etc/ganesha/exports/export.gvol1.conf 
+
+  - name: restart nfs-ganesha service
+    shell:  
+      systemctl restart nfs-ganesha
+
+  - name: verify nfs exports on rhgs1
+    shell:  
+      showmoune -e localhost # but directory path is different from result output so in order to mount the diretory, please refer below "mount vol/subdir from client" section.
+
+  - name: install nfs client on client systems
+     shell:
+       yum install nfs-utils rpcbind
+
+#  - name: mount vol from client
+#    shell:
+#      mount -t nfs -o vers=4 192.168.56.235:/gvol1 /mnt
+#
+#  - name: apply changed export file through all ganesha cluster
+#    shell:
+#      /usr/libexec/ganesha/ganesha-ha.sh --refresh-config  /etc/ganesha  testvol
+
+  - name: mount vol/subdir from client
+    shell:
+      mount -t nfs -o vers=4 192.168.56.235:/work1 /mnt   #subdir is /gvol1/work1
+
+
+##### ref
+#https://access.redhat.com/documentation/en-US/Red_Hat_Storage/3.1/html/Administration_Guide/sect-NFS.html#sect-NFS_Ganesha
+#https://access.redhat.com/documentation/en-US/Red_Hat_Storage/3/html-single/Administration_Guide/index.html#sect-NFS_Ganesha 
+#https://github.com/nfs-ganesha/nfs-ganesha/blob/master/src/config_samples/export.txt
