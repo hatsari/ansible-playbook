@@ -1,0 +1,36 @@
+- name: add VLAN interfaces
+  template: src=ifcfg.j2
+            dest=/etc/sysconfig/network-scripts/ifcfg-{{ item.name }}
+            owner=root
+            group=root
+            mode=0755
+  with_items:
+  - {name: 'vlan100', vlan: '100', ip: '10.1.1.1' }
+  - {name: 'vlan200', vlan: '200', ip: '172.16.0.1' }
+  - {name: 'vlan201', vlan: '201', ip: '172.17.0.1' }
+  - {name: 'vlan202', vlan: '202', ip: '172.18.0.1' }
+  - {name: 'vlan203', vlan: '203', ip: '172.19.0.1' }
+  - {name: 'vlan204', vlan: '204', ip: '172.20.0.1' }
+
+- name: Enable interfaces 
+  shell: "ifup {{ item }}"  
+  with_items:
+  - vlan100
+  - vlan200
+  - vlan201
+  - vlan202
+  - vlan203
+  - vlan204
+
+
+- name: Update MOTD
+  blockinfile: 
+    dest: /etc/motd
+    marker: "==============================================================="
+    insertafter: EOF
+    block: |
+      A set of VLANS have been created on the eth1 interface on this box.
+      These VLANS correspond to the VLANS created by default in the "network
+      isolation" heat environment file.
+
+

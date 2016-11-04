@@ -1,0 +1,63 @@
+# This plabook contains two plays. The first one sets up the basic stuff for the host.
+# Tis creates the stack user, and enables the rhos repositories
+- name: prepare undercloud
+  hosts: undercloud
+  remote_user: vagrant
+  become: true
+
+  vars_prompt:
+  - name: "rhos_source"
+    prompt: "Enter the OpenStack source: (internal,official)" 
+    default: "internal"
+  - name: "rhos_release"
+    prompt: "Enter the OpenStack release you wish to use: (7,8,9)" 
+    default: "9"
+  - name: "rh_username"
+    prompt: "Enter your Red Hat Portal username" 
+    default: "" 
+  - name: "rh_password"
+    prompt: "Enter your Red Hat Portal password" 
+    private: yes
+    default: "" 
+
+  vars:
+    rh_pool: "Employee SKU"
+
+  pre_tasks:
+  - name: disable NetworkManager
+    service: name=NetworkManager enabled=no state=stopped
+  - hostname: name=undercloud.redhat.local
+
+  roles:
+  - common
+  - { role: rhos, when: rhos_source == "internal" }
+  - { role: rosp, when: rhos_source == "official" } 
+
+# The second play installs the undercloud.
+- name: install undercloud
+  hosts: undercloud
+  remote_user: stack
+  become: true
+  become_user: stack
+
+
+  roles:
+  - undercloud
+
+
+# Last play fixes a few things...
+
+- name: fix network
+  hosts: undercloud
+  remote_user: vagrant
+  become: true
+
+  roles:
+  - network
+
+  post_tasks:
+  - name: Unregister host
+    redhat_subscription: state=absent
+    when: rhos_source == "official"
+
+

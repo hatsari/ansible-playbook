@@ -1,0 +1,3 @@
+- name: Restart ironic-inspector
+  become_user: root
+  service: name=openstack-ironic-conductor.service state=restarted

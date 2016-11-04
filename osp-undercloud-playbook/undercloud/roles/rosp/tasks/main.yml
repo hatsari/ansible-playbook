@@ -1,0 +1,31 @@
+- name: Register the box with the Red Hat Portal
+  redhat_subscription: state=present 
+                       username={{ rh_username }} 
+                       password={{ rh_password }} 
+                       pool={{ rh_pool }}
+
+- name: Disable  repositories
+  command: "subscription-manager repos --disable=*"
+
+- name: Enable Repositories
+  command: "subscription-manager repos --enable {{ item }}"
+  with_items:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-openstack-{{ rhos_release }}-rpms
+  - rhel-7-server-openstack-{{ rhos_release }}-director-rpms
+  - rhel-7-server-rh-common-rpms
+
+
+
+
+
+- name: upgrade all packages
+  yum: name=* state=latest
+
+- name: Update MOTD
+  blockinfile: block="Using Red Hat Open Stack Platform release {{ rhos_release }}"
+               insertafter=EOF
+               marker="==============================================================="
+               dest=/etc/motd
+     

@@ -1,0 +1,13 @@
+DEVICE={{ item.name }}
+ONBOOT=yes
+HOTPLUG=no
+NM_CONTROLLED=no
+PEERDNS=no
+DEVICETYPE=ovs
+TYPE=OVSIntPort
+OVS_BRIDGE=br-ctlplane
+OVS_OPTIONS="tag={{ item.vlan }}"
+BOOTPROTO=static
+IPADDR={{ item.ip }}
+NETMASK=255.255.255.0
+

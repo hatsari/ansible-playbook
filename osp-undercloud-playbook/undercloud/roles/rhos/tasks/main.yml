@@ -1,0 +1,19 @@
+- name: Get the RHOS-release repo management tool
+  yum: name=http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm
+       state=present
+
+- name: Enable the ospd repo
+  command: "rhos-release  {{ rhos_release }}-director"
+  args:
+    creates: "/etc/yum.repos.d/rhos-release-{{ rhos_release }}-director.repo"
+
+
+- name: upgrade all packages
+  yum: name=* state=latest
+
+- name: Update MOTD
+  blockinfile: block="Using the internal RHOS build release {{ rhos_release }}"
+               insertafter=EOF
+               marker="==============================================================="
+               dest=/etc/motd
+     

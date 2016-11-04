@@ -1,0 +1,22 @@
+- name: Set a MOTD
+  template: src=motd.j2
+            dest=/etc/motd
+            owner=root
+            group=root
+            mode=0644
+
+- name: add the stack user
+  user: name=stack
+
+- name: enable sudo for the stack user
+  copy: src=sudoers.d/stack
+        dest=/etc/sudoers.d/stack  
+        validate='visudo -cf %s'
+        mode=440
+        owner=root
+        group=root
+
+- name: Add authorized keys to the stack user
+  authorized_key: user=stack key=https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub
+
+

@@ -1,0 +1,74 @@
+- name: Install TripleO stuff... may take a while ...
+  yum: name=python-tripleoclient state=present
+  become_user: root
+
+- name: Copy the default undercloud config
+  command: "cp /usr/share/instack-undercloud/undercloud.conf.sample /home/stack/undercloud.conf"
+  args:
+    creates: "/home/stack/undercloud.conf"
+
+- name: Create Subdirectories for images and templates
+  file: path=/home/stack/{{ item }}  state=directory mode=0755
+  with_items:
+  - images
+  - templates
+  
+- name: Install Images  ... may take a quite some time  ...
+  yum: name={{ item }} state=present
+  become_user: root
+  with_items:
+  - rhosp-director-images
+  - rhosp-director-images-ipa
+
+- name: Unpack images
+  command: "tar -xf /usr/share/rhosp-director-images/{{ item }}" 
+  args:
+    chdir: /home/stack/images
+    creates: /home/stack/images/overcloud-full.qcow2
+  with_items:
+  - ironic-python-agent.tar
+  - overcloud-full.tar
+
+- name: Start the install of the undercloud in the background.
+  command: "openstack undercloud install"
+  async: 3600
+  poll: 0
+  register: undercloud_sleeper
+  args: 
+    creates: /home/stack/undercloud-passwords.conf
+
+- name: Wait for Undercloud install to finish 
+  async_status: jid={{ undercloud_sleeper.ansible_job_id }}
+  register: job_result
+  until: job_result.finished
+  retries: 240
+  delay: 15
+
+- name: Import images
+  shell: "source /home/stack/stackrc; openstack overcloud image upload"
+  args:
+    chdir: /home/stack/images
+
+- name: Add fake_pxe driver to ironic
+  become_user: root
+  lineinfile: dest=/etc/ironic/ironic.conf
+              backup=True
+              backrefs=True
+              state=present
+              regexp='(^enabled_drivers=(\s*(?!fake_pxe)\w+,?)*)\s*$'
+              line='\1,fake_pxe'
+  notify:
+  - Restart ironic-inspector
+
+- name: Update MOTD
+  become_user: root
+  blockinfile: 
+    dest: /etc/motd
+    marker: "==============================================================="
+    insertafter: EOF
+    block: |
+      The Undercloud has been installed
+      If you are not logged in as user stack do a sudo su - stack first.
+      You can now source /home/stack/stackrc and start using it
+
+
