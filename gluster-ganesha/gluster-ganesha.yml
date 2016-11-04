@@ -69,7 +69,7 @@
       showmoune -e localhost # but directory path is different from result output so in order to mount the diretory, please refer below "mount vol/subdir from client" section.
 
   - name: install nfs client on client systems
-     shell:
+    shell:
        yum install nfs-utils rpcbind
 
 #  - name: mount vol from client
