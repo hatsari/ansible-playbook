@@ -1,0 +1,12 @@
+[windows]
+10.64.168.26
+#vcenter ansible_host=10.64.168.93
+#jumper ansible_port=5555 ansible_host=192.0.2.50
+
+[windows:vars]
+ansible_user= root
+ansible_password= "Red Hat!"
+ansible_port= 5986
+ansible_connection= winrm
+ansible_winrm_server_cert_validation= ignore
+#ansible_winrm_transport= ssl

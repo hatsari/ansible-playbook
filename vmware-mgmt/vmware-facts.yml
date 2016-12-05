@@ -1,0 +1,21 @@
+---
+- name: vmware facts from esxi
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vmware_info.yml
+  vars:
+#  vars_prompt:
+#    - name: password
+#      prompt: "PASSWORD: "
+  tasks:
+    - name: gather all registered vm
+      vmware_vm_facts:
+        hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_user }}"
+#        password: "{{ password }}"
+        password: "{{ vcenter_pass }}"
+      register: vmfacts
+    - name: print facts
+      debug:
+        msg: "{{ vmfacts.virtual_machines.keys() }}"

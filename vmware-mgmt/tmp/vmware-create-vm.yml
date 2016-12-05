@@ -1,0 +1,59 @@
+---
+- name: VM from template
+  hosts: localhost
+  become: True
+  gather_facts: false
+  connection: local
+  vars:
+    datacenter: DC04
+    vmcluster: LOCAL_04
+    datastore: SD_LOCAL_host04_sda
+    vcenter_hostname: 10.64.168.93
+#    vcenter_hostname: vcenter
+    vcenter_user: administrator@vsphere.local 
+    vcenter_pass: "Redhat14!$"
+    esxhost: 10.64.168.104
+    network: "rhevm"
+    vmname: "ykim_by_ansible"
+    vmtemplate: "RHEL-7U2-BASE"
+    notes: Created by Ansible
+    dumpfacts: False
+  tasks:
+#    - name: Check for required variables
+#      fail: msg="Must pass name and group to -e"
+#      when: name is not defined or group is not defined
+
+#    - name: Check for vSphere access parameters
+#      fail: msg="Must set vcenter_user and vcenter_pass in a Vault"
+#      when: (vcenter_user is not defined) or (vcenter_pass is not defined)
+      
+    - name: Create VM from template
+      vmware_guest:
+        validate_certs: False
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        name: "{{ vmname }}"
+        state: poweredon
+        disk:
+#          - size_gb: 50
+          - type: thin
+            datastore: "{{ datastore }}"
+        nic:
+          - type: vmxnet3
+            network: "{{ network }}"
+            network_type: standard
+        hardware:
+          memory_mb: 512
+          num_cpus: 1
+          osid: rhel7u2guest
+          scsi: paravirtual
+        esxi_hostname: "{{ esxhost }}"
+        datacenter: "{{ datacenter }}"
+        template: "{{ vmtemplate }}"
+        wait_for_ip_address: True
+      register: newvm
+      
+    - name: IP address info
+      debug:
+        msg: "{{ newvm.instance.ipv4 }} {{ vmname }}"

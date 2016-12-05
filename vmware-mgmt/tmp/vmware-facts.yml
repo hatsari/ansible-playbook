@@ -1,0 +1,25 @@
+---
+- name: vmware facts from esxi
+  hosts: localhost
+  connection: local
+  vars:
+    vcenter: vcenter.seoul.test
+    vcenter_user: administrator@vsphere.local 
+    vcenter_pass: "Redhat14!$"
+    esxi: 10.64.168.104
+    esxi_user: root
+    esxi_pass: "RedHat 14!$"
+#  vars_prompt:
+#    - name: password
+#      prompt: "PASSWORD: "
+  tasks:
+    - name: gather all registered vm
+      vmware_vm_facts:
+        hostname: "{{ vcenter }}"
+        username: "{{ vcenter_user }}"
+#        password: "{{ password }}"
+        password: "{{ vcenter_pass }}"
+      register: vmfacts
+    - name: print facts
+      debug:
+        msg: "{{ vmfacts.virtual_machines }}"

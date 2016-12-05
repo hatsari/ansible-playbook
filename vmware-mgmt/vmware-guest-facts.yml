@@ -1,0 +1,24 @@
+---
+- name: vm facts from vcenter
+  hosts: localhost
+  become: True
+  gather_facts: false
+  connection: local
+  vars_files:
+    - vmware_info.yml
+  vars:
+    network: "rhevm"
+    vmname: "ykim_by_ansible"
+    dumpfacts: True
+  tasks:
+    - name: gather the VM facts
+      vsphere_guest:
+        vcenter_hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        guest: "{{ vmname }}"
+        vmware_guest_facts: yes
+      register: facts
+
+    - name: show debug
+      debug: msg="{{ facts }}"

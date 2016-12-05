@@ -1,0 +1,58 @@
+---
+- name: vmshell from vcenter
+  hosts: localhost
+  connection: local
+  vars:
+    vcenter: vcenter.seoul.test
+    vcenter_user: administrator@vsphere.local
+    vcenter_pass: "Redhat14!$"
+    esxi: 10.64.168.104
+    username: root
+    password: "RedHat 14!$"
+    datacenter: DC04
+    vmname: "ykim_by_ansible"
+    os_user: root
+    os_pass: redhat
+  tasks:
+    - name: create ifcfg-eth0 on vm from vcenter
+      vmware_vm_shell:
+        hostname: "{{ vcenter }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        datacenter: "{{ datacenter }}"
+        vm_id: "{{ vmname }}"
+        vm_username: "{{ os_user }}"
+        vm_password: "{{ os_pass }}"
+        vm_shell: /bin/echo 
+        vm_shell_args: "$VAR > ifcfg-eth0"
+#        vm_shell_args: >
+        vm_shell_env:
+          - "PATH=/bin"
+          - 'VAR= -e 
+         DEVICE=eth0\n
+         NAME=eth0\n
+         ONBOOT=yes\n
+         NM_CONTROLLED=no\n
+         BOOTPROTO=static\n
+         IPADDR=172.20.20.239\n
+         PREFIX=24
+          '
+        vm_shell_cwd: "/etc/sysconfig/network-scripts/"
+      register: vmfacts
+
+    - name: restart network service of vm from vcenter
+      vmware_vm_shell:
+        hostname: "{{ vcenter }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        datacenter: "{{ datacenter }}"
+        vm_id: "{{ vmname }}"
+        vm_username: "{{ os_user }}"
+        vm_password: "{{ os_pass }}"
+        vm_shell: /bin/systemctl
+        vm_shell_args: "restart network"
+        vm_shell_env:
+          - "PATH=/bin"
+        vm_shell_cwd: "/tmp"
+
+    - debug: msg= "vm fact is {{ vmfacts }}" verbosity=4

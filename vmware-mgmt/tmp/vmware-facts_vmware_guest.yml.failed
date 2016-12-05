@@ -1,0 +1,15 @@
+---
+- name: gather vm facts
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: gather vm facts
+      vmware_guest:
+        hostname: 10.64.168.93
+        username: administrator@vsphere.local
+        password: Redhat14!$
+        name: sekim-RHEL-7U2-test-NFS
+        esxi_hostname: 10.64.168.104
+        wait_for_ip_address: yes
+      register: facts

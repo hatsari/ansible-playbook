@@ -1,0 +1,4 @@
+[windows]
+#10.64.168.126
+vcenter ansible_host=10.64.168.93
+#jumper ansible_port=5555 ansible_host=192.0.2.50
