@@ -1,5 +1,5 @@
 ansible_user: root
-ansible_password: "Red Hat!"
+ansible_password: "redhat"
 ansible_port: 5986
 ansible_connection: winrm
 ansible_winrm_server_cert_validation: ignore
