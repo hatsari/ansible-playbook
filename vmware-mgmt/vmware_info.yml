@@ -1,10 +1,10 @@
 datacenter: DC04
 vcenter_host: 11.11.111.11
 vcenter_user: administrator@vsphere.local 
-vcenter_pass: "redhat"
+vcenter_pass: "password"
 esxi_host: 11.11.111.111
 esxi_user: root
-esxi_pass: "redhat"
+esxi_pass: "password"
 datastore: SD_LOCAL_host04_sda
 vmcluster: LOCAL_04
 #  vars_prompt:
