@@ -14,7 +14,7 @@
     shell:
       echo "10.64.168.10    reposerver" >> /etc/hosts
 
-  - name: add repo server
+  - name: copy repo file to server
     copy:  
       src=./rhel7-gluster.repo dest=/etc/yum.repos.d/rhel7-gluster.repo owner=root group=root mode=644 backup=yes
 
