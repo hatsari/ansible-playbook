@@ -1,0 +1,38 @@
+---
+- hosts: "{{host_to_run}}"
+  vars:
+  - host_name: "{{ ansible_hostname }}"
+  tasks:
+  - name: selinux disable
+    selinux:  
+      state: disabled
+
+  - name:  delete rhgs host from host file
+    lineinfile:
+      dest: /etc/hosts
+      regexp: 'rhgs'
+      line: ""
+
+  - name:  delete reposerver host from host file
+    lineinfile:
+      dest: /etc/hosts
+      regexp: 'reposerver'
+      line: ""
+
+  - name: copy repo file to server
+    template:  
+      src: rhel7-gluster.repo 
+      dest: /etc/yum.repos.d/rhel7-gluster.repo 
+      owner: root 
+      backup: yes
+
+  - name: stop httpd service
+    service:
+      name: httpd
+      state: stopped
+      ignore: yes
+
+  - name: yum delete httpd
+    yum:  
+      name: httpd 
+      state: absent
