@@ -30,7 +30,7 @@
     service:
       name: httpd
       state: stopped
-      ignore_errors: yes
+    ignore_errors: yes
 
   - name: yum delete httpd
     yum:  
