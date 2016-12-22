@@ -1,4 +1,5 @@
 ##### 20160928-05:30:02 - created #####
+#### {{ host_name }} for repo
 
 [rhel-7-server-rpms]
 name=rhel-7-server-rpms
