@@ -19,12 +19,10 @@
       regexp: 'reposerver'
       line: ""
 
-  - name: copy repo file to server
-    template:  
-      src: rhel7-gluster.repo 
-      dest: /etc/yum.repos.d/rhel7-gluster.repo 
-      owner: root 
-      backup: yes
+  - name: delete repo file
+    file:  
+      path: /etc/yum.repos.d/rhel7-gluster.repo
+      state: absent
 
   - name: stop httpd service
     service:
