@@ -4,6 +4,6 @@
 rhv_host: "engine.bluehat.com"
 rhv_url: https://engine.bluehat.com/ovirt-engine/api
 rhv_user: admin@internal
-rhv_pass: "redhat"
+rhv_pass: ""
 rhv_ca: "ca.pem"
 vmtemplate: "rhel7-template"

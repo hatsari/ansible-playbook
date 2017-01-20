@@ -3,11 +3,11 @@
 
 datacenter: datacenter
 vcenter_host: 192.168.50.105
-vcenter_user: administrator@vsphere.local
-vcenter_pass: "QWer!@34"
+vcenter_user: ""
+vcenter_pass: ""
 esxi_host: 192.168.50.2
 esxi_user: root
-esxi_pass: "vmwareesxi"
+esxi_pass: ""
 datastore: datastore1
 vmcluster: vcluster
 
