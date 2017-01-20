@@ -1,0 +1,40 @@
+---
+- hosts: "{{ hostname }}"
+  become: True
+
+  tasks:
+    - name: tune sysctl.conf by script module
+      script:
+        tune_for_jboss.sh
+
+    - name: copy rhel7.repo
+      template:
+        src: rhel7_by_ansible.repo.j2
+        dest: /etc/yum.repos.d/rhel7_by_ansible.repo
+        owner: root
+
+    - name: install firewalld
+      yum:
+        name: firewalld
+        state: installed
+
+    - name: restart firewalld
+      systemd:
+        name: firewalld
+        state: restarted
+
+    - name: tune sysctl.conf by sysctl module
+      sysctl:
+        name: vm.swappiness
+        value: 5
+        state: present
+        reload: yes
+
+    - name: open 80 port in firewalld
+      firewalld:
+        port: 80/tcp
+        permanent: true
+        immediate: true
+        state: enabled
+
+

@@ -1,0 +1,23 @@
+---
+# This playbook creates VM on RHEV or vsphere
+
+- name: create vm on vmware
+  hosts: localhost
+  connection: local
+  gather_facts: False
+#  become: True
+  vars_files:
+    - vmware_info.yml
+
+  roles: 
+    - { role: create_vm_on_vsphere, when: (virt_infra == 'Vsphere') }
+
+- name: create vm on rhv
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - rhv_info.yml
+
+  roles: 
+    - { role: create_vm_on_rhv, when: (virt_infra == 'RHV') }

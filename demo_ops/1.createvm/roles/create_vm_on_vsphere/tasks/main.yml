@@ -1,0 +1,28 @@
+---
+- name: Create VM from template
+  vsphere_guest:
+    vcenter_hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_user }}"
+    password: "{{ vcenter_pass }}"
+    guest: "{{ vm_name }}"
+#    force: yes
+    from_template: yes
+    template_src: "{{ vmtemplate }}"
+    cluster: "{{ vmcluster }}"
+    esxi:
+      datacenter: "{{ datacenter }}"
+      hostname: "{{ esxi_host }}"
+    vm_hardware:
+      memory_mb: "{{ mem_size }}"
+      num_cpus: "{{ cpu_num }}"
+      scsi: paravirtual
+    vm_disk:
+      disk1:
+        size_gb: "{{ disk_size }}"
+        type: thin
+        datastore: "{{ datastore }}"
+    vm_nic:
+      nic1:
+        type: vmxnet3
+        network: "{{ network }}"
+        network_type: standard

@@ -1,0 +1,16 @@
+---
+- name: Obtain SSO token with using username/password credentials
+  ovirt_auth:
+    url: "{{ rhv_url }}"
+    username: "{{ rhv_user }}"
+#    ca_file: "{{ rhv_ca }}"
+    password: "{{ rhv_pass }}"
+    insecure: yes
+
+- name: create vm with template
+  ovirt_vms:
+    auth: "{{ ovirt_auth }}"
+    state: present
+    name: "{{ vm_name }}"
+    template: "{{ vmtemplate }}"
+    cluster: Default

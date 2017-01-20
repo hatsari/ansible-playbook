@@ -1,0 +1,48 @@
+---
+#- hosts: "{{ servername }}"
+- hosts: web10
+  become: True
+
+  tasks:
+    - name: print log
+      debug:
+        msg: "print the servername {{ servername }}"
+
+    - name: tune sysctl.conf for web service
+      sysctl:
+        name: vm.swappiness
+        value: 5
+        state: present
+        reload: yes
+
+    - name: open 80 port in firewalld
+      firewalld:
+        port: 80/tcp
+        permanent: true
+        state: enabled
+
+    - name: restart firewalld
+      systemd:
+        name: firewalld
+        state: restarted
+
+    - name: copy rhel7.repo
+      template:
+        src: rhel7.repo.j2
+        dest: /etc/yum.repos.d/rhel7.repo
+        owner: root
+
+    - name: install httpd
+      yum:
+        name: httpd
+        state: installed
+
+    - name: copy httpd.conf using template
+      template:
+        src: httpd.conf.j2
+        dest: /etc/httpd/conf/httpd.conf
+
+    - name: start httpd
+      service:
+        name: httpd
+        state: started
