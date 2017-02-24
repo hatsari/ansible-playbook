@@ -1,0 +1,10 @@
+---
+dbcount: 1
+dbname: ykim-db
+dbvolsize: 10
+wascount: 1
+wasname: ykim-was
+wasvolsize: 1
+webcount: 1
+webname: ykim-web
+webvolsize: 1

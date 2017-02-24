@@ -1,0 +1,8 @@
+---
+# tasks file for openstack-lbaas
+- name: lbaas-lb-create
+  become_user: stack
+  debug: 
+    msg: "wasgroup is {{ item }}"
+  with_items:
+    - "{{ groups['wasgroup'] }}"

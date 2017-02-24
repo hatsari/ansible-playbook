@@ -1,0 +1,54 @@
+- name: Deploy multiple duplicate cloud instances in OpenStack
+  hosts: localhost
+  connection: local
+
+  vars:
+    image: cirros
+    network: private
+    key_name: demo-key
+    flavor: m1.tiny
+    security_groups: default
+    count: 3
+    volsize: 1
+    device_path: "/dev/vdb"
+
+  tasks:
+    - name: Connect to the Catalyst Cloud
+      # assume RC file has already been sourced
+      os_auth:
+
+    - name: Launch web instances
+      os_server:
+        name: test0{{ item }}
+        flavor: "{{ flavor }}"
+        image: "{{ image }}"
+        key_name: "{{ key_name }}"
+        state: present
+        wait: true
+        network: "{{ network }}"
+        security_groups: "{{ security_groups }}"
+        auto_ip: true
+      register: newnodes
+      with_sequence:
+        count={{ count }}
+
+    - add_host: name={{ item.server.public_v4 }}
+                groups=created_nodes
+                ansible_user=ubuntu
+                instance_name={{ item.server.name }}
+      with_items: "{{ newnodes.results }}"
+
+    - name: create volume
+      os_volume:
+        state: present
+        size: "{{ volsize }}"
+        display_name: "{{ item.server.name }}-vol"
+      with_items: "{{ newnodes.results }}"
+
+    - name: attach volume to server
+      os_server_volume:
+        state: present
+        server: "{{ item.server.name }}"
+        volume: "{{ item.server.name }}-vol"
+        device: "{{ device_path }}"
+      with_items: "{{ newnodes.results }}"

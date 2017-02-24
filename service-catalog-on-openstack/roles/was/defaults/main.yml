@@ -1,0 +1,19 @@
+---
+jboss_eap_artifact_name: jboss-as-7.1.1.Final.tar.gz
+
+jboss_eap_logging_timezone: Asia/Seoul
+
+jboss_eap_bind_web_interface: true
+jboss_eap_bind_management_interface: false
+
+jboss_eap_user: jboss-as
+
+jboss_eap_config: standalone.xml
+jboss_eap_mode: standalone
+jboss_eap_bind_web_address: 0.0.0.0
+jboss_eap_bind_management_address: 0.0.0.0
+# Set this value that will suffix jboss-eap in the archive folder e.g. jboss-eap-6.4
+jboss_eap_base_version: 7.1.1
+
+# ussually this is set at the playbook level
+#transfer_method: # csp-to-host | copy-from-contoller | url

@@ -1,0 +1,15 @@
+- name: Deploy multiple duplicate cloud instances in OpenStack
+  hosts: localhost
+  connection: local
+
+  vars_files:
+    - spec.yml
+
+  tasks:
+    - name: openstack auth
+# needs keystonerc environment
+      os_auth:
+#    - include: openstack-auth.yml
+    - include: deploy-db.yml
+    - include: deploy-was.yml
+    - include: deploy-web.yml

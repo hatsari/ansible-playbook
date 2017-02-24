@@ -1,0 +1,15 @@
+---
+#dbname: ppas
+#dbport: 5445
+#dbsid: 
+dbgroup: pg{{ dbsid|lower }}
+prefix: /PG
+dbbase: /PG/{{ dbsid|upper }}
+#edbhome: /PG/{{ dbsid|upper }}/9.5AS
+dbdir: /pgdata/{{ dbsid|upper }}
+datadir: /pgdata/{{ dbsid|upper }}/data/pg
+xlogdir: /pgdata/{{ dbsid|upper }}/pg_xlog
+archdir: /pgdata/{{ dbsid|upper }}/arch
+deftbsdir: /pgdata/{{ dbsid|upper }}/TS01
+scriptdir: /pgdata/{{ dbsid|upper }}/script
+

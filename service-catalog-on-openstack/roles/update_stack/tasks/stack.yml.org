@@ -1,0 +1,28 @@
+- name: create stack
+  ignore_errors: True
+  register: stack_create
+  os_stack:
+#    auth: "{{ os_auth }}"
+    name: "{{ stack_name }}"
+    state: present
+    template: template_main.yaml
+    parameters:
+      make_tenant_network: "{{ stack_name }}"
+      define_key_name: "{{ define_key_name }}"
+      define_flavor: "{{ define_flavor }}"
+      define_image: "{{ define_image }}"
+      define_security_group: "{{ define_security_group }}"
+      define_HTTPD_instance_name: "{{ define_HTTPD_instance_name }}"
+      define_WAS_instance_name: "{{ define_WAS_instance_name }}"
+      define_DB_instance_name: "{{ define_DB_instance_name }}"
+      define_HTTPD_min_size: "{{ define_HTTPD_min_size }}"
+      define_HTTPD_max_size: "{{ define_HTTPD_max_size }}"
+      define_WAS_min_size: "{{ define_WAS_min_size }}"
+      define_WAS_max_size: "{{ define_WAS_max_size }}"
+      define_DB_min_size: "{{ define_DB_min_size }}"
+      define_DB_max_size: "{{ define_DB_max_size }}"
+      define_HTTPD_cinder_vol_size_data: "{{ define_HTTPD_cinder_vol_size_data }}"
+      define_WAS_cinder_vol_size_data: "{{ define_WAS_cinder_vol_size_data }}"
+      define_DB_cinder_vol_size_data: "{{ define_DB_cinder_vol_size_data }}"
+      define_DB_server_port: "{{ define_DB_server_port }}"
+      define_DB_sid: "{{ define_DB_sid }}"

@@ -1,0 +1,35 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: apply common configuration to all nodes
+#  hosts: "{{ group }}"
+  hosts: db1,was1
+#  become_user: root
+
+  roles:
+    - common
+
+
+- name: deploy and configure PPAS 
+  hosts: db1
+  roles:
+    - db
+
+- name: deploy and configure jboss-as-7.1.1
+  hosts: was1
+  roles:
+    - was
+
+#- name: configure and deploy the webservers and application code
+#  hosts: "{{ wasserver }}"
+#  become_user: root
+#
+#  roles:
+#    - was
+#
+#- name: configure and deploy the webservers and application code
+#  hosts: "{{ webserver }}"
+#  become_user: root
+#
+#  roles:
+#    - web

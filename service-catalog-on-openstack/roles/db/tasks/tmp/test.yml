@@ -1,0 +1,20 @@
+---
+- hosts: db1
+  gather_facts: no
+  become_user: pgppas
+  become_method: su
+  tasks:
+    - name: change superaccount password
+      shell: source ~pgppas/.bash_profile && /PG/PPAS/9.5AS/bin/psql -c "alter user pgsys password 'pgppas#001';"
+
+#      shell: su -s /bin/bash - pgppas -c "/PG/PPAS/9.5AS/bin/psql -c alter user pgsys password 'pgppas#001';"
+
+#    - name: change superaccount password
+#      postgresql_user: 
+#        login_host: 10.40.71.146
+#        port: 5445
+#        db: PPAS
+#        login_user: pgsys
+#        login_password: NULL
+#        user: pgsys
+#        password: pgsys#001

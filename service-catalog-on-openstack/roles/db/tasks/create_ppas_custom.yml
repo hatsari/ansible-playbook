@@ -1,0 +1,103 @@
+---
+- name: install python-psycopg2
+  yum:
+    name: python-psycopg2
+    state: installed 
+  tags:
+    - ppas
+
+- name: get and extract ppas binary file
+  unarchive:
+    src: "https://ftp.postgresql.org/pub/source/v9.6.2/postgresql-9.6.2.tar.gz"
+    #src: "http://10.40.86.106/APP/DB/ppas_templete_rhel6_v1.6.tar.gz"
+    dest: "{{ dbbase }}"
+    owner: "{{ dbuser }}"
+    group: "{{ dbgroup }}"
+    copy: no
+  tags:
+    - ppas
+
+- name: create user profile
+  template:
+    src: bash_profile.j2
+    dest: "{{ edbhome }}/.bash_profile"
+    mode: 0750
+    owner: "{{ dbuser }}"
+    group: "{{ dbgroup }}"
+  tags:
+    - ppas
+
+- name: create default dir
+  file:
+    path: "{{ item }}"
+    state: directory 
+    mode: 0750
+    owner: "{{ dbuser }}"
+    group: "{{ dbgroup }}"
+  with_items:
+    - "{{ prefix }}"
+    - "{{ edbhome }}"
+    - "{{ datadir }}"
+    - "{{ xlogdir }}"
+    - "{{ deftbsdir }}"
+    - "{{ archdir }}"
+    - "{{ scriptdir }}"
+  tags:
+    - ppas
+
+- name: chown of pgdata
+  shell: chown -R {{ dbuser }}:{{ dbgroup }} {{ dbdir }}; chmod 700 {{ datadir }}
+  tags:
+    - ppas
+
+- name: execute initdb
+  shell: "su - {{ dbuser }} -c 'initdb --pgdata={{ datadir }} --xlogdir={{ xlogdir }} --encoding='UTF8' --locale='C' --username={{ pgadmin }}'"
+#  ignore_errors: true
+  tags:
+    - ppas
+
+- name: create postgresql.conf
+  template:
+    src: postgresql.conf.j2
+    dest: "{{ datadir }}/postgresql.conf"
+    owner: "{{ dbuser }}"
+    group: "{{ dbgroup }}"
+    mode: 0644
+  tags:
+    - ppas
+
+- name: create pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: "{{ datadir }}/pg_hba.conf"
+    owner: "{{ dbuser }}"
+    group: "{{ dbgroup }}"
+    mode: 0644
+  tags:
+    - ppas
+
+- name: start db
+  shell: "su - {{ dbuser }} -c 'pg_ctl start;sleep 3'"
+  tags:
+    - ppas
+
+- name: create db
+  become_user: "{{ dbuser }}"
+  shell: source ~{{ dbuser }}/.bash_profile; psql -d edb -c "create tablespace TS01 location '{{ deftbsdir }}'"; createdb -p {{ dbport }} -D ts01 {{ dbsid|upper }}; dropdb postgres;
+#  ignore_errors: true
+  tags:
+    - ppas
+
+- name: create table
+  become_user: "{{ dbuser }}"
+  shell: source ~{{ dbuser }}/.bash_profile; psql -d {{ dbsid|upper }} -c "create table jbtest(name varchar2(50)); insert into jbtest values('db is connected'); insert into jbtest values('jaehyung jjang!!!');"
+#  ignore_errors: true
+  tags:
+    - ppas
+    
+- name: change superaccount password
+  become_user: "{{ dbuser }}"
+#  become_method: su
+  shell: source ~{{ dbuser }}/.bash_profile && psql -c "alter user {{ pgadmin }} password '{{ dbuser }}#001';"
+  tags:
+    - ppas

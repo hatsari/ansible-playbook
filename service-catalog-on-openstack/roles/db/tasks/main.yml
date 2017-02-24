@@ -1,0 +1,6 @@
+---
+# create ppas db
+
+#- include: config_db_filesystem.yml
+- include: preconfig_os.yml
+- include: create_ppas.yml

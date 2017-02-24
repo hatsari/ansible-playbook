@@ -1,0 +1,20 @@
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+#export EDBHOME={{ dbbase }}/9.5AS
+#export PATH=$EDBHOME/bin:$PATH
+#export LD_LIBRARY_PATH={{ dbbase }}/oracli/instantclient_11_2
+export PGDATA={{ datadir }}
+export PGDATABASE={{ dbsid|upper }}
+export PGUSER=pgsys
+export PGPORT={{ dbport }}
+export PGLOCALEDIR=$EDBHOME/share/locale
+
+export TMOUT=1800
+umask 022

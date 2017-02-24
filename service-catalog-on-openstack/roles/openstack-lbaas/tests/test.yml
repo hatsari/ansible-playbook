@@ -1,0 +1,35 @@
+---
+- name: playbook 
+  hosts: 192.168.168.2
+  remote_user: cloud-user
+  vars:
+    overcloudrc: /home/cloud-user/overcloudrc
+    db: dblb1
+  tasks:
+   - name: text pparsing
+     shell: > 
+       source {{ overcloudrc }} && 
+       neutron lbaas-loadbalancer-list | grep haproxy | awk -F "|" '{print $3 $4}'
+     register: result
+
+   - name: parsing txt
+     debug:
+       msg: "{{ result.stdout_lines }}"
+
+   - name: set fact
+     set_fact:
+       dblb: "{{ item.split()[1] }}"
+     when: "{{ item.find(db) != -1 }}"
+     with_items:
+       - "{{ result.stdout_lines }}"
+
+   - name: print fact
+     debug:
+       msg: "{{ dblb }}"
+
+#   - name: set fact lb
+#     set_fact:
+#       dblb: "{{ result.stdout.split() }}"
+
+#  roles:
+#    - openstack-lbaas

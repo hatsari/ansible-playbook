@@ -1,0 +1,73 @@
+---
+# tasks file for openstack-lbaas
+- name: lbaas-lb-create
+  become_user: stack
+  shell: >
+    source {{ overcloudrc }} && 
+    neutron lbaas-loadbalancer-create {{ public_subnet_list }} 
+    --name {{ item }}
+  with_items:
+    - "{{ db_lb_name }}"
+    - "{{ was_lb_name }}"
+    - "{{ web_lb_name }}"
+
+- name: lbaas-lb-listener-create
+  become_user: stack
+  shell: > 
+    source {{ overcloudrc }} && 
+    neutron lbaas-listener-create 
+    --loadbalancer {{ item.lb_name }}
+    --protocol-port {{ item.port }}
+    --protocol {{ item.proto }}
+    --name {{ item.listener }}
+  with_items:
+    - { lb_name: "{{ db_lb_name }}", port: "{{ db_lb_protocol_port }}", proto: "{{ db_lb_protocol }}", listener: "{{ db_lb_listener_name }}" }
+    - { lb_name: "{{ was_lb_name }}", port: "{{ was_lb_protocol_port }}", proto: "{{ was_lb_protocol }}", listener: "{{ was_lb_listener_name }}" }
+    - { lb_name: "{{ web_lb_name }}", port: "{{ web_lb_protocol_port }}", proto: "{{ web_lb_protocol }}", listener: "{{ web_lb_listener_name }}" }
+
+- name: lbaas-lb-pool-create
+  become_user: stack
+  shell: > 
+    source {{ overcloudrc }} &&
+    neutron lbaas-pool-create
+    --name {{ item.pool }}
+    --protocol {{ item.proto }}
+    --listener {{ item.listener }}
+    --lb-algorithm  {{ item.algo }}
+  register: result
+  until: result.stdout.find("True") != -1
+  delay: 30
+  with_items:
+    - { pool: "{{ db_lb_pool_name }}", proto: "{{ db_lb_protocol }}", listener: "{{ db_lb_listener_name }}", algo: "{{ db_lb_algorithm }}" }
+    - { pool: "{{ was_lb_pool_name }}", proto: "{{ was_lb_protocol }}", listener: "{{ was_lb_listener_name }}", algo: "{{ was_lb_algorithm }}" }
+    - { pool: "{{ web_lb_pool_name }}", proto: "{{ web_lb_protocol }}", listener: "{{ web_lb_listener_name }}", algo: "{{ web_lb_algorithm }}" }
+
+- name: print rhdb1 hostvars
+  debug:
+    msg: " rhdb1 is {{ hostvars['rhdb1'] }}"
+  tags:
+    - lb
+
+- name: lbaas-lb-member-create
+  become_user: stack
+  shell: > 
+    source {{ overcloudrc }} && 
+    neutron lbaas-member-create {{ item[0].pool }}
+    --protocol-port {{ item[0].port }}
+    --address {{ hostvars['rhdb1']['ansible_ssh_host'] }}
+    --subnet {{ private_subnet_list }} 
+  with_items: 
+    - { pool: "{{ was_lb_pool_name }}", port: "{{ was_lb_protocol_port }}" }
+#    - "{{ groups['dbgroup'] }}"
+  register: lb_create
+#  tags:
+#    - lb
+
+- name: debug lb_create
+  debug:
+    msg: "lb is {{ lb_create }}"
+#  tags:
+#    - lb
+#
+#    --address {{ hostvars.item[1]ansible_private_v4 }}
+#  with_nested: 

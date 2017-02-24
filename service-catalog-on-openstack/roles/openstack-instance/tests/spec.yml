@@ -1,0 +1,42 @@
+---
+######
+os_config_file: "{{ lookup('env', 'OS_CLIENT_CONFIG_FILE') }}"
+
+######
+service_group: ppas-jboss-apache
+dbcount: 1
+wascount: 2
+webcount: 2
+dbvolsize: 2
+wasvolsize: 1
+webvolsize: 1
+device_path: "/dev/vdb"
+
+serverspec:
+  - name: ppas
+    image: cirros
+    flavor: m1.tiny
+    key_name: demo-key
+    network: private
+    availability_zone: nova
+    secgroup: default
+    meta: 
+      group: autoprovision
+  - name: jboss
+    image: cirros
+    flavor: m1.tiny
+    key_name: demo-key
+    network: private
+    availability_zone: nova
+    secgroup: default
+    meta: 
+      group: autoprovision
+  - name: apache
+    image: cirros
+    flavor: m1.tiny
+    key_name: demo-key
+    network: private
+    availability_zone: nova
+    secgroup: default
+    meta: 
+      group: autoprovision

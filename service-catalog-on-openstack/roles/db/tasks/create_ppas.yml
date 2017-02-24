@@ -1,0 +1,83 @@
+- name: install postgressql packages
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - postgresql-server
+    - postgresql-contrib
+    - postgresql-jdbc
+    - python-psycopg2
+  tags:
+    - ppas
+
+- name: execute initdb
+  shell: "postgresql-setup initdb"
+  ignore_errors: true
+  tags:
+    - ppas
+
+# 20170222 - edited by KSP
+- name: create pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: "/var/lib/pgsql/data/pg_hba.conf"
+    #dest: "{{ datadir }}/pg_hba.conf"
+    owner: "{{ dbuser }}"
+    group: "{{ dbgroup }}"
+    mode: 0644
+  tags:
+    - ppas
+
+- name: start db
+  service:
+    name: postgresql
+    state: started
+  tags:
+    - ppas
+
+
+- name: create db with posgreSQL RPM
+  become: yes
+  become_user: "{{ dbuser }}"
+  shell: createdb {{ dbsid|upper }}; 
+#  ignore_errors: true
+  tags:
+    - ppas
+
+- name: create table with posgreSQL RPM
+  become: yes
+  become_user: "{{ dbuser }}"
+  shell: psql -d {{ dbsid|upper }} -c "create table jbtest(name varchar(50)); insert into jbtest values('db is connected'); insert into jbtest values('db connected');"
+  #shell: psql -d {{ dbsid|upper }} -c "create table jbtest(name varchar2(50)); insert into jbtest values('db is connected'); insert into jbtest values('db connected');"
+#  ignore_errors: true
+  tags:
+    - ppas
+
+#- name: change superaccount password with posgreSQL RPM
+#  become: yes
+#  become_user: "{{ dbuser }}"
+#  become_method: su
+#  shell: source ~{{ dbuser }}/.bash_profile && psql -c "alter user {{ pgadmin }} password '{{ dbuser }}#001';"
+#  tags:
+#    - ppas
+
+#- name: create db
+#  become_user: "{{ dbuser }}"
+#  shell: psql -d postgres -c "create tablespace TS01 location '{{ deftbsdir }}'"; createdb -D ts01 {{ dbsid|upper }}; 
+##  ignore_errors: true
+#  tags:
+#    - ppas
+#
+#- name: create table
+#  become_user: "{{ dbuser }}"
+#  shell: source ~{{ dbuser }}/.bash_profile; psql -d {{ dbsid|upper }} -c "create table jbtest(name varchar2(50)); insert into jbtest values('db is connected'); insert into jbtest values('db connected');"
+##  ignore_errors: true
+#  tags:
+#    - ppas
+#    
+#- name: change superaccount password
+#  become_user: "{{ dbuser }}"
+##  become_method: su
+#  shell: source ~{{ dbuser }}/.bash_profile && psql -c "alter user {{ pgadmin }} password '{{ dbuser }}#001';"
+#  tags:
+#    - ppas

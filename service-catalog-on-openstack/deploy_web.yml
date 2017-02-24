@@ -1,0 +1,16 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: apply common configuration to all nodes
+  hosts: "{{ webname }}"
+  #become_user: root
+  become: true
+  roles:
+    - common
+
+- name: apply WEB configuration to all nodes
+  hosts: "{{ webname }}"
+  #become_user: root
+  become: true
+  roles:
+    - web

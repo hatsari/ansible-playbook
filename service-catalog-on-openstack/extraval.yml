@@ -1,0 +1,16 @@
+---
+dbname: PPAS
+wasname: jboss
+webname: apache
+dbport: 5445
+service_group: ppas-jboss-apache
+dbcount: 1
+wascount: 2
+webcount: 2
+dbvolsize: 2
+wasvolsize: 1
+webvolsize: 1
+dbgroup: dbgroup
+wasgroup: wasgroup
+webgroup: webgroup
+#lbass_was_ip: 40.40.40.152

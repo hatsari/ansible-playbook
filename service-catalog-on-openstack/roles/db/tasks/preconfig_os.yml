@@ -1,0 +1,86 @@
+- name: create group
+  group:
+    name: "{{ dbgroup }}"
+    gid: 1001
+    state: present
+  tags:
+    - ppas
+
+#- name: create user
+#  user:
+#    name: "{{ dbuser }}"
+#    uid: 1001
+#    shell: /bin/bash
+#    home: "{{ dbbase }}"
+#    group: "{{ dbgroup }}"
+#    state: present
+#  tags:
+#    - ppas
+
+- name: edit user limit nofile
+  pam_limits:
+    domain: "{{ dbuser }}" 
+    limit_type: "-"
+    limit_item: nofile
+    value: 65535
+  tags:
+    - ppas
+  
+- name: edit user limit memlock
+  pam_limits:
+    domain: "{{ dbuser }}" 
+    limit_type: "-"
+    limit_item: memlock
+    value: 2278400
+  tags:
+    - ppas
+
+- name: kernel shmall in sysctl
+  sysctl:
+    name: kernel.shmall 
+    value: 4194304 
+    sysctl_set: yes 
+    state: present 
+    reload: no
+  tags:
+    - ppas
+
+- name: kernel shmmax in sysctl
+  sysctl:
+    name: kernel.shmmax
+    value: "{{ ((((ansible_memtotal_mb*1024.0*1024.0)|round|int)*0.3)|round|int) }}"
+    sysctl_set: yes 
+    state: present 
+    reload: no
+  tags:
+    - ppas
+
+- name: fs.file-max in sysctl
+  sysctl:
+    name: fs.file-max
+    value: 65535
+    sysctl_set: yes 
+    state: present 
+    reload: no
+  tags:
+    - ppas
+
+- name: vm.swappiness in sysctl
+  sysctl:
+    name: vm.swappiness 
+    value: 0
+    sysctl_set: yes 
+    state: present 
+    reload: no
+  tags:
+    - ppas
+
+- name: vm.overcommit_memory in sysctl
+  sysctl:
+    name: vm.overcommit_memory
+    value: 2
+    sysctl_set: yes 
+    state: present 
+    reload: yes
+  tags:
+    - ppas

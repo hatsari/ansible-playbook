@@ -1,0 +1,8 @@
+---
+#- name: openstack auth
+# needs keystonerc environment
+#      os_auth:
+- include: openstack-auth.yml
+- include: provision-db.yml
+- include: provision-was.yml
+- include: provision-web.yml

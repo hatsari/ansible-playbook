@@ -1,0 +1,56 @@
+- name: Launch db instances
+  os_server:
+    auth: "{{ os_auth }}"
+    name: "{{ dbspec.name }}{{ item }}"
+    flavor: "{{ dbspec.flavor }}"
+    image: "{{ dbspec.image }}"
+    key_name: "{{ dbspec.key_name }}"
+    state: present
+    wait: true
+    nics:
+      - net-name: "{{ dbspec.netname }}"
+    meta: "hostname={{ dbname|lower }}"
+    floating_ip_pools: "{{ dbspec.floatingippools }}"
+    security_groups: "{{ dbspec.secgroup }}"
+#    auto_ip: no
+    reuse_ips: false
+    timeout: 500
+  register: db_hosts
+  until: db_hosts.server.public_v4 is defined
+  retries: 5
+  delay: 120
+#  ignore_errors: true
+  with_sequence: 
+    count={{ dbcount }}
+  tags:
+    - createvm
+
+- name: add hosts to inventory
+  add_host: 
+    name: "{{ item.server.name }}"
+    groups: dbgroup
+    ansible_ssh_host: "{{ item.server.public_v4 }}"
+  with_items: "{{ db_hosts.results }}"
+  tags:
+    - createvm
+
+- name: create volume
+  os_volume:
+    auth: "{{ os_auth }}"
+    state: present
+    size: "{{dbvolsize }}"
+    display_name: "{{ item.server.name }}-vol"
+  with_items: "{{ db_hosts.results }}"
+  tags:
+    - createvm
+
+- name: attach volume to server
+  os_server_volume:
+    auth: "{{ os_auth }}"
+    state: present
+    server: "{{ item.server.name }}"
+    volume: "{{ item.server.name }}-vol"
+    device: "{{ device_path }}"
+  with_items: "{{ db_hosts.results }}"
+  tags:
+    - createvm

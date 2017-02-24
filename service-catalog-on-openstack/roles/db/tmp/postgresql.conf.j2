@@ -1,0 +1,244 @@
+# -----------------------------
+# PostgreSQL configuration file
+# -----------------------------
+#
+# This file consists of lines of the form:
+#
+#   name = value
+#
+# (The "=" is optional.)  Whitespace may be used.  Comments are introduced with
+# "#" anywhere on a line.  The complete list of parameter names and allowed
+# values can be found in the PostgreSQL documentation.
+#
+# The commented-out settings shown in this file represent the default values.
+# Re-commenting a setting is NOT sufficient to revert it to the default value;
+# you need to reload the server.
+#
+# This file is read on server startup and when the server receives a SIGHUP
+# signal.  If you edit the file on a running system, you have to SIGHUP the
+# server for the changes to take effect, or use "pg_ctl reload".  Some
+# parameters, which are marked below, require a server shutdown and restart to
+# take effect.
+#
+# Any parameter can also be given as a command-line option to the server, e.g.,
+# "postgres -c log_connections=on".  Some parameters can be changed at run time
+# with the "SET" SQL command.
+#
+# Memory units:  kB = kilobytes        Time units:  ms  = milliseconds
+#                MB = megabytes                     s   = seconds
+#                GB = gigabytes                     min = minutes
+#                TB = terabytes                     h   = hours
+#                                                   d   = days
+
+#------------------------------------------------------------------------------
+# FILE LOCATIONS
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# CONNECTIONS AND AUTHENTICATION
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# RESOURCE USAGE (except WAL)
+#------------------------------------------------------------------------------
+dynamic_shared_memory_type = posix      # the default is the first option
+                                        # supported by the operating system:
+                                        #   posix
+                                        #   sysv
+                                        #   windows
+                                        #   mmap
+                                        # use none to disable dynamic shared memory
+
+# - Disk -
+shared_preload_libraries = '$libdir/dbms_pipe,$libdir/edb_gen'
+                                        # (change requires restart)
+
+#------------------------------------------------------------------------------
+# WRITE AHEAD LOG
+#------------------------------------------------------------------------------
+
+# - Settings -
+
+# - Checkpoints -
+
+#------------------------------------------------------------------------------
+# REPLICATION
+#------------------------------------------------------------------------------
+
+# - Sending Server(s) -
+
+# - Standby Servers -
+
+#------------------------------------------------------------------------------
+# QUERY TUNING
+#------------------------------------------------------------------------------
+
+# - Planner Method Configuration -
+
+# - Planner Cost Constants -
+
+# - Genetic Query Optimizer -
+
+# - Other Planner Options -
+#------------------------------------------------------------------------------
+# ERROR REPORTING AND LOGGING
+#------------------------------------------------------------------------------
+
+# - Where to Log -
+
+# - When to Log -
+
+
+# - What to Log -
+log_timezone = 'ROK'
+
+# - Process Title -
+
+#---------------------------------------------------------------------------
+# EDB AUDIT
+#---------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# RUNTIME STATISTICS
+#------------------------------------------------------------------------------
+
+# - Query/Index Statistics Collector -
+
+#------------------------------------------------------------------------------
+# AUTOVACUUM PARAMETERS
+#------------------------------------------------------------------------------
+
+
+
+#------------------------------------------------------------------------------
+# CLIENT CONNECTION DEFAULTS
+#------------------------------------------------------------------------------
+
+# - Statement Behavior -
+
+# - Locale and Formatting -
+datestyle = 'redwood,show_time'
+timezone = 'ROK'
+# These settings are initialized by initdb, but they can be changed.
+lc_messages = 'en_US.UTF8'                      # locale for system error message
+                                        # strings
+lc_monetary = 'en_US.UTF8'                      # locale for monetary formatting
+lc_numeric = 'en_US.UTF8'                       # locale for number formatting
+lc_time = 'en_US.UTF8'                          # locale for time formatting
+
+default_text_search_config = 'pg_catalog.english'
+
+# - Other Defaults -
+
+#------------------------------------------------------------------------------
+# LOCK MANAGEMENT
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# VERSION/PLATFORM COMPATIBILITY
+#------------------------------------------------------------------------------
+
+# - Previous PostgreSQL Versions -
+
+# - Other Platforms and Clients -
+
+# - Oracle compatibility -
+
+edb_redwood_date = on                   # translate DATE to TIMESTAMP(0)
+edb_redwood_greatest_least = on # GREATEST/LEAST are strict
+edb_redwood_strings = on                # treat NULL as an empty string in
+                                        # string concatenation
+
+db_dialect = 'redwood'                  # Sets the precedence of built-in
+                                        # namespaces.
+                                        # 'redwood' means sys, dbo, pg_catalog
+                                        # 'postgres' means pg_catalog, sys, dbo
+
+#------------------------------------------------------------------------------
+# ERROR HANDLING
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# CONFIG FILE INCLUDES
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# CUSTOMIZED OPTIONS
+#------------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------
+# DYNA-TUNE
+#---------------------------------------------------------------------------
+
+edb_dynatune = 100                       # percentage of server resources
+                                        # dedicated to database server,
+                                        # defaults to 66
+#---------------------------------------------------------------------------
+# QREPLACE
+#---------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------
+# RUNTIME INSTRUMENTATION AND TRACING
+#---------------------------------------------------------------------------
+edb_stmt_level_tx = on
+logging_collector = on
+log_duration = on
+log_min_duration_statement = 600000
+log_min_messages = warning
+log_connections = on
+timed_statistics = on
+log_rotation_age = 7d
+log_rotation_size = 50MB
+log_line_prefix = '%t %u@%r/%d (%p)'
+wal_level=minimal
+wal_buffers = 16MB
+#archive_mode = on
+#archive_timeout = 1
+max_connections = 500
+superuser_reserved_connections = 3
+max_prepared_transactions = 0
+temp_file_limit = -1
+temp_buffers = 8MB
+work_mem = 16MB
+listen_addresses = '*'
+log_directory = pg_log
+#max_wal_size = 4GB
+#min_wal_size = 1GB
+huge_pages = try
+maintenance_work_mem = 100MB
+seq_page_cost = 1.0
+random_page_cost = 4.0
+cpu_tuple_cost = 0.01
+cpu_operator_cost = 0.0025
+cpu_index_tuple_cost = 0.005
+default_statistics_target = 100
+enable_bitmapscan = on
+enable_seqscan = on
+enable_indexscan = on
+enable_indexonlyscan = on
+enable_material = on
+enable_hashagg = on
+enable_hashjoin = on
+enable_mergejoin = on
+enable_nestloop = on
+enable_hints = on
+edb_enable_pruning = on
+checkpoint_completion_target = 0.9
+log_destination = 'stderr'
+log_disconnections = on
+autovacuum = on
+log_autovacuum_min_duration = -1
+autovacuum_max_workers = 5
+vacuum_cost_delay = 0
+vacuum_cost_page_hit = 1
+vacuum_cost_page_miss = 10
+vacuum_cost_page_dirty = 20
+vacuum_cost_limit = 200
+log_statement = ddl
+log_filename = '{{ dbsid|upper }}-%Y-%m-%d_%H%M%S.log'
+archive_command = 'cp %p {{ archdir }}/%f'
+shared_buffers = {{ (((ansible_memtotal_mb)|round)*0.1)|int }}MB
+#shared_buffers = {{ (((ansible_memtotal_mb)|round)*0.25)|int }}MB
+effective_cache_size = {{ (((ansible_memtotal_mb)|round)*0.25)|int }}MB
+#effective_cache_size = {{ (((ansible_memtotal_mb)|round)*0.75)|int }}MB
+port = {{ dbport }}
+oracle_home ='{{ dbbase }}/oracli/instantclient_11_2'

@@ -1,0 +1,63 @@
+- name: Launch web instances
+  os_server:
+    auth: "{{ os_auth }}"
+    name: "{{ webspec.name }}{{ item }}"
+    flavor: "{{ webspec.flavor }}"
+    image: "{{ webspec.image }}"
+    key_name: "{{ webspec.key_name }}"
+    state: present
+    wait: true
+    nics:
+      - net-name: "{{ webspec.netname }}"
+    meta: "hostname={{ webname }}"
+    security_groups: "{{ webspec.secgroup }}"
+    floating_ip_pools: "{{ webspec.floatingippools }}"
+#    auto_ip: no
+    reuse_ips: false
+    timeout: 500
+  register: web_hosts
+  until: web_hosts.server.public_v4 is defined
+#  until: "{{ web_hosts.server.public_v4 }} != ''"
+  retries: 5
+  delay: 10
+  ignore_errors: yes
+  with_sequence: 
+    count={{ webcount }}
+  tags:
+    - createvm
+
+- name: set web host information
+  set_fact:
+    web_host_info: "{{ web_hosts.results }}"
+  tags:
+    - createvm
+
+- name: add hosts to inventory
+  add_host: 
+    name: "{{ item.server.name }}"
+    groups: "{{ webgroup }}"
+    ansible_ssh_host: "{{ item.server.public_v4 }}"
+  with_items: "{{ web_hosts.results }}"
+  tags:
+    - createvm
+
+- name: create volume
+  os_volume:
+    auth: "{{ os_auth }}"
+    state: present
+    size: "{{webvolsize }}"
+    display_name: "{{ item.server.name }}-vol"
+  with_items: "{{ web_hosts.results }}"
+  tags:
+    - createvm
+
+- name: attach volume to server
+  os_server_volume:
+    auth: "{{ os_auth }}"
+    state: present
+    server: "{{ item.server.name }}"
+    volume: "{{ item.server.name }}-vol"
+    device: "{{ device_path }}"
+  with_items: "{{ web_hosts.results }}"
+  tags:
+    - createvm

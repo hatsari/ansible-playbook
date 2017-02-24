@@ -1,0 +1,16 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: apply common configuration to all nodes
+#  hosts: "{{ dbname }}"
+  hosts: rhdb1
+  become: true
+  roles:
+    - common
+
+- name: apply DB configuration to all nodes
+#  hosts: "{{ dbname }}"
+  hosts: rhdb1
+  become: true
+  roles:
+    - db
