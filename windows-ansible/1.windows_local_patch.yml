@@ -1,0 +1,10 @@
+---
+#- hosts: 10.64.168.26
+- hosts: 10.64.168.144
+  gather_facts: False
+  tasks:
+    - name: copy windows update file KB3102810
+      win_copy: src=files/Windows6.1-KB3102810-x86.msu dest=c:\
+
+    - name: install windows update KB3102810
+      win_msi: path="c:\Windows6.1-KB3102810-x86.msu" state=present

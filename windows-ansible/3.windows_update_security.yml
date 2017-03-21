@@ -1,0 +1,7 @@
+---
+- hosts: 10.64.168.144
+#- hosts: 10.64.168.26
+  gather_facts: false
+  tasks:
+    - name: search available windows update 
+      win_updates: category_names=SecurityUpdates state=installed

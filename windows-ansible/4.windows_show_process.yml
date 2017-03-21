@@ -1,0 +1,17 @@
+---
+- hosts: 10.64.168.144
+  gather_facts: false
+  tasks:
+    - name: show windows facts
+      setup:
+      register: win_facts
+
+    - name: debug win_facts
+      debug: msg="{{ win_facts }}"
+
+    - name: show windows processes
+      script: "scripts/showProcess.ps1"
+      register: win_processes
+
+    - name: show processes
+      debug: msg="{{ win_processes }}"
