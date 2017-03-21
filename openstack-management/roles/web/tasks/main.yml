@@ -1,0 +1,49 @@
+---
+- name: install httpd
+  yum:
+    name: httpd
+    state: installed
+    
+- name: httpd.conf template
+  template:
+    src: httpd.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
+    owner: root
+
+- name: mod_jk.conf template
+  template:
+    src: mod_jk.conf
+    dest: /etc/httpd/conf.d/mod_jk.conf
+    owner: root
+
+- name: welcome.conf template
+  template:
+    src: welcome.conf
+    dest: /etc/httpd/conf.d/welcome.conf
+    owner: root
+
+- name: workers.properties template
+  template:
+    src: workers.properties.j2
+    dest: /etc/httpd/conf.d/workers.properties
+    owner: root
+  ignore_errors: yes
+
+- name: uriworkermap.properties template
+  template:
+    src: uriworkermap.properties
+    dest: /etc/httpd/conf.d/uriworkermap.properties
+    owner: root
+
+- name: copy mod_jk.so
+  copy:
+    src: mod_jk.so
+    dest: /etc/httpd/modules/
+    owner: root
+    mode: 0755
+
+- name: http service state
+  service: 
+    name: httpd 
+    state: restarted 
+    enabled: yes

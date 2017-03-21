@@ -1,0 +1,6 @@
+---
+- name: delete openstack instances, cinder volumes and loadbalancers
+  hosts: director
+  gather_facts: no
+  roles:
+    - { role: deleteAll, tags: delete }

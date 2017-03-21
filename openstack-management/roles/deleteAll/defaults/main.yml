@@ -1,0 +1,5 @@
+---
+# defaults file for destoryAll
+host: ykim
+answer: no
+overcloudrc: /home/cloud-user/overcloudrc

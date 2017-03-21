@@ -1,0 +1,22 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: update openstack heat stack
+  hosts: localhost
+  connection: local
+  become_user: awx
+  environment:
+    OS_NO_CACHE: True
+    OS_CLOUDNAME: overcloud
+    OS_AUTH_URL: https://192.168.168.157:13000/v2.0
+    NOVA_VERSION: 1.1
+    COMPUTE_API_VERSION: 1.1
+    OS_USERNAME: admin
+    no_proxy: 192.168.168.157,192.0.2.250
+    OS_PASSWORD: redhat
+    PYTHONWARNINGS: "ignore:Certificate has no, ignore:A true SSLContext object is not available"
+    OS_TENANT_NAME: admin
+
+
+  roles:
+    - update_stack

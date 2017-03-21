@@ -1,0 +1,68 @@
+- name: install postgressql packages
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - postgresql-server
+    - postgresql-contrib
+    - postgresql-jdbc
+    - python-psycopg2
+
+- name: execute initdb
+  shell: "postgresql-setup initdb"
+  ignore_errors: true
+
+# 20170222 - edited by KSP
+- name: create pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: "/var/lib/pgsql/data/pg_hba.conf"
+    #dest: "{{ datadir }}/pg_hba.conf"
+    owner: "{{ dbuser }}"
+    group: "{{ dbgroup }}"
+    mode: 0644
+
+- name: enable postgresql listener
+  lineinfile:
+    dest: "/var/lib/pgsql/data/postgresql.conf"
+    regexp: listen_addresses
+    line: listen_addresses = '*'
+
+- name: start db
+  service:
+    name: postgresql
+    state: started
+
+
+- name: create db with posgreSQL RPM
+  become: yes
+  become_user: "{{ dbuser }}"
+  shell: createdb {{ dbsid|upper }}; 
+#  ignore_errors: true
+
+- name: create table with posgreSQL RPM
+  become: yes
+  become_user: "{{ dbuser }}"
+  shell: psql -d {{ dbsid|upper }} -c "create table jbtest(name varchar(50)); insert into jbtest values('db is connected');"
+#  ignore_errors: true
+
+- name: change superaccount password with posgreSQL RPM
+  become: yes
+  become_user: "{{ dbuser }}"
+  become_method: sudo
+  shell: source ~{{ dbuser }}/.bash_profile && psql -c "alter user {{ dbuser }} password '{{ dbuser }}#001';"
+
+#- name: create db
+#  become_user: "{{ dbuser }}"
+#  shell: psql -d postgres -c "create tablespace TS01 location '{{ deftbsdir }}'"; createdb -D ts01 {{ dbsid|upper }}; 
+##  ignore_errors: true
+#
+#- name: create table
+#  become_user: "{{ dbuser }}"
+#  shell: source ~{{ dbuser }}/.bash_profile; psql -d {{ dbsid|upper }} -c "create table jbtest(name varchar(50)); insert into jbtest values('db is connected'); insert into jbtest values('db connected');"
+##  ignore_errors: true
+#    
+#- name: change superaccount password
+#  become_user: "{{ dbuser }}"
+##  become_method: su
+#  shell: source ~{{ dbuser }}/.bash_profile && psql -c "alter user {{ pgadmin }} password '{{ dbuser }}#001';"

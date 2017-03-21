@@ -1,0 +1,47 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: Provision Instance from TOWER with ansible
+#  hosts: "{{ group }}"
+  hosts: localhost
+  connection: local
+#  become_user: root
+
+  roles:
+    - { role: openstack-instance, tags: instance }
+
+- name: create openstack load balancer
+  hosts: director
+  roles:
+    - { role: openstack-lbaas, tags: lbaas }
+
+- name: Deploy common packages
+  hosts: dbgroup,wasgroup,webgroup
+  become: True
+  #become_user: root
+  roles:
+    - { role: common, tags: common}
+
+- name: Deploy DB from TOWER with ansible
+#  hosts: "{{ group }}"
+  hosts: dbgroup
+  become: True
+  #become_user: root
+  roles:
+    - { role: db, tags: db }
+
+- name: Deploy WAS from TOWER with ansible
+#  hosts: "{{ group }}"
+  hosts: wasgroup
+  become: True
+  #become_user: root
+  roles:
+    - { role: was, tags: was }
+
+- name: Deploy WEB from TOWER with ansible
+#  hosts: "{{ group }}"
+  hosts: webgroup
+  become: True
+  #become_user: root
+  roles:
+    - { role: web, tags: web }

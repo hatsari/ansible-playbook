@@ -1,0 +1,57 @@
+---
+# This playbook contains common plays that will be run on all nodes.
+
+#- name: copy yum repo file
+#  template:
+#    src: repos.repo
+#    dest: /etc/yum.repos.d/repos.repo
+#    owner: root
+
+- name: set selinux permissive
+  selinux:
+    policy: targeted 
+    state: permissive
+
+- name: disable selinux
+  lineinfile: 
+    dest: /etc/selinux/config
+    regexp: ^SELINUX=
+    line: SELINUX=disabled
+
+- name: enable ssh root permit
+  lineinfile: 
+    dest: /etc/ssh/sshd_config
+    regexp: ^PermitRootLogin yes 
+    line: PermitRootLogin yes
+
+- name: enable ssh password authentication
+  lineinfile: 
+    dest: /etc/ssh/sshd_config
+    regexp: PasswordAuthentication no
+    line: PasswordAuthentication yes
+  notify: restart sshd
+
+
+
+#- name: stop firewalld & iptables service
+#  service:
+#    name: "{{ item }}"
+#    state: stopped
+#    enabled: no
+#  with_items:
+#    - firewalld
+#    - iptables
+#  ignore_errors: true
+
+- name: install packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - lvm2
+    - java-1.7.0-openjdk
+    - nmap-ncat
+    - libxml2
+    - unzip
+    - initscripts
+

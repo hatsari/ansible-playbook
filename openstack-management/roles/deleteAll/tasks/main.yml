@@ -1,0 +1,46 @@
+---
+# tasks file for destoryAll
+- name: check instance status
+  become_user: cloud-user
+  shell: >
+    source {{ overcloudrc }} &&
+    nova list | grep {{ host }} | wc -l
+  register: instance_exist
+  changed_when: False
+
+- name: check cinder status
+  become_user: cloud-user
+  shell: >
+    source {{ overcloudrc }} &&
+    cinder list | grep {{ host }} | wc -l
+  register: volume_exist
+  changed_when: False
+
+- name: check lb status
+  become_user: cloud-user
+  shell: >
+    source {{ overcloudrc }} &&
+    neutron lbaas-loadbalancer-list | grep lb | wc -l
+  register: instance_exist
+  changed_when: False
+
+- name: delete instances
+  become_user: cloud-user
+  shell: >
+    source {{ overcloudrc }} &&
+    nova list | grep {{ host }} | awk -F '|' '{print $2}'  | xargs nova delete
+  when:  ( host is defined and answer == "YES" and instance_exist.stdout != "0" )
+
+- name: delete cinder-volume
+  become_user: cloud-user
+  shell: >
+    source {{ overcloudrc }} &&
+    cinder list | grep {{ host }}  | awk -F '|' '{print $2 }'  | xargs cinder delete
+  when:  ( host is defined and answer == "YES" and volume_exist.stdout != "0" )
+
+- name: delete loadbalancer
+  become_user: cloud-user
+  shell: >
+    source {{ overcloudrc }} &&
+    for i in pool listener loadbalancer;do neutron lbaas-$i-list | grep lb | awk -F '|' '{print $2}' | xargs neutron lbaas-$i-delete; done
+  when:  ( host is defined and answer == "YES" and lb_exist.stdout != "0" )

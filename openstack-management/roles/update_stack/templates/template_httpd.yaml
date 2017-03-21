@@ -1,0 +1,151 @@
+heat_template_version: 2014-10-16
+
+description: >
+  SDS Heat Orchestration Template (Apache HTTPD)
+
+parameters:
+  define_HTTPD_instance_name:
+    type: string
+    description: Instance Name
+
+  define_key_name:
+    type: string
+    description: Name of an existing key pair to use for the instance
+
+  define_flavor:
+    type: string
+    description: Flavor for the instance to be created
+
+  define_metadata:
+    type: json
+
+  define_image:
+    type: string
+    description: Glance image for instance
+
+  define_pool_id:
+    type: string
+    description: LBaaS Pool
+
+  define_WAS_lb_floating:
+    type: string
+    description: LBaaS Floating IP
+
+  define_tenant_network:
+    type: string
+    description: Tenant VM Network
+
+  define_tenant_network_subnet:
+    type: string
+    description: Tenant VM Network Subnet
+
+  define_public_network:
+    type: string
+    description: External VM Network
+
+  define_router:
+    type: string
+    description: The L3 Router
+
+  define_HTTPD_cinder_vol_size_data:
+    type: number
+    description: The size of the volume for Data
+
+  define_security_group:
+    type: string
+    description: Security Group
+
+resources:
+  random_hostname_suffix:
+    type: OS::Heat::RandomString
+    properties:
+      character_classes: [{"class": lowercase}, {"class": digits}]
+      length: 4
+
+  cinder_volume_data:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: define_HTTPD_cinder_vol_size_data }
+      name:
+        str_replace:
+          template: "HOSTNM-SUFFIX"
+          params:
+            HOSTNM: {get_param: define_HTTPD_instance_name}
+            SUFFIX: {get_attr: [random_hostname_suffix, value]}
+
+  cinder_volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume_data}
+      instance_uuid: { get_resource: HTTPD }
+      mountpoint: /dev/vdb
+
+  HTTPD:
+    type: OS::Nova::Server
+    depends_on: cinder_volume_data
+    properties:
+      name:
+        str_replace:
+          template: "HOSTNM-SUFFIX"
+          params:
+            HOSTNM: {get_param: define_HTTPD_instance_name}
+            SUFFIX: {get_attr: [random_hostname_suffix, value]}
+      key_name: { get_param: define_key_name }
+      flavor: { get_param: define_flavor }
+      image: { get_param: define_image }
+      networks:
+        - port: { get_resource: resource_tenant_network_port }
+      security_groups:
+        - { get_param: define_security_group }
+      metadata: { get_param: define_metadata }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+            sleep 3
+            echo "webname : $webname" >> /tmp/cloud_history.txt
+            echo "webvolsize : $webvolsize" >> /tmp/cloud_history.txt
+            echo "waslb : $waslb" >> /tmp/cloud_history.txt
+            curl -f -k -H 'Content-Type: application/json' -XPOST -d '{"extra_vars": {"webname":"$webname", "webvolsize":$webvolsize, "waslb":"$waslb"}}' --connect-timeout 600 --user admin:'infra!23' https://168.219.66.219:443/api/v1/job_templates/103/launch/
+          params:
+            $webname:
+              str_replace:
+                template: "HOSTNM-SUFFIX"
+                params:
+                  HOSTNM: {get_param: define_HTTPD_instance_name}
+                  SUFFIX: {get_attr: [random_hostname_suffix, value]}
+            $webvolsize: { get_param: define_HTTPD_cinder_vol_size_data }
+            $waslb: { get_param: define_WAS_lb_floating }
+
+  resource_tenant_network_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_param: define_tenant_network }
+      fixed_ips:
+        - subnet_id: { get_param: define_tenant_network_subnet }
+
+  resource_floating_ip_address:
+    type: OS::Neutron::FloatingIP
+    depends_on: resource_tenant_network_port
+    properties:
+      floating_network: public
+
+  resource_floating_ip_address_association:
+    type: OS::Neutron::FloatingIPAssociation
+    depends_on: resource_floating_ip_address
+    properties:
+      floatingip_id: { get_resource: resource_floating_ip_address }
+      port_id: { get_resource: resource_tenant_network_port }
+
+  HTTPD_LB:
+    type: OS::Neutron::PoolMember
+    depends_on: HTTPD
+    properties:
+      pool_id: { get_param: define_pool_id }
+      address: { get_attr: [HTTPD, first_address] }
+      protocol_port: 80
+
+outputs:
+  server_private_ip:
+    value: {get_attr: [HTTPD, first_address]}
