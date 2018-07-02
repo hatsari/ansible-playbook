@@ -1,0 +1,9 @@
+---
+#- hosts: localhost
+- hosts: localhost
+  gather_facts: False
+  tasks:
+  - name: Modify frontend instance
+    include_role:
+      name: aws-instance-modify
+      vars_from: frontend.yml

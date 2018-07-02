@@ -1,0 +1,12 @@
+---
+#- hosts: localhost
+- hosts: tag_Group_tower_frontends
+#  connection: local
+  user: ec2-user
+  gather_facts: true
+  become: true
+  tasks:
+  - name: Install and Config frontend instance
+    include_role:
+      name: aws-web
+      vars_from: web.yml

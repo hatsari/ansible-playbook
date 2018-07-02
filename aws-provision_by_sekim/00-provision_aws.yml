@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+#  become: true
+  gather_facts: False
+  tasks:
+  - name: Create frontend instance
+    include_role:
+      name: aws-provision 
+      vars_from: frontend.yml

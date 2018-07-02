@@ -1,0 +1,54 @@
+---
+- name: Set up Vars
+  include_vars: main.yml
+
+- name: Gather hosts matching tags
+  ec2_instance_facts:
+    region: "{{ aws_region }}"
+    filters:
+      instance-state-name: running
+#       instance_state: running
+      "tag:prov": ansible
+      "tag:Name": "tower-{{ instance_name }}"
+#        "tag:ROLES": "{{ cli_roles }}"
+#        "tag:ENV": "{{ cli_env }}"
+  register: tagged_instances
+
+- debug: var=tagged_instances
+
+
+- name: Get instance names of the matching hosts strictly so we can see what the servers 'are'. This is not important.
+  debug:
+    msg: "{{ item.0 }} - {{ item.1 }}"
+  with_together:
+    - "{{ tagged_instances.instances | map(attribute='tags.Name') | list }}"
+    - "{{ tagged_instances.instances | map(attribute='private_ip_address') | list }}"
+
+- name: gather hosts matched tags
+  ec2_instance_facts:
+    region: "{{ aws_region }}"
+    filters:
+      availability-zone: "{{ aws_region }}"
+      instance-state-name: running
+      "tag:prov": ansible
+      "tag:Name": "tower-{{ instance_name }}"
+  register: running_instances 
+
+- debug: var=running_instances
+
+
+- name: Terminate and DeProvision instances that were running
+  ec2:
+    region: "{{ aws_region }}"
+#    state: stopped
+    state: absent
+    instance_ids: "{{ item }}"
+    wait: yes
+  count_tag:
+    prov: ansible
+    Name: "tower-{{ instance_name }}"
+    Group: "tower-{{ instance_group_name }}"
+  exact_count: 1
+  with_items:
+    -  "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
+

@@ -1,0 +1,12 @@
+---
+- name: attach disk to instance
+  hosts: tag_Group_tower_frontends
+  tasks:
+  - name: attach disk
+    ec2_vol:
+      region: "{{ aws_region }}"
+#      group: "{{ security_name }}"
+      instance: "{{ instance_id }}"
+      volume_size: 5
+      device_name: sdd
+

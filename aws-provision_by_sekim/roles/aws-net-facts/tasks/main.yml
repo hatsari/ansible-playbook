@@ -1,0 +1,6 @@
+---
+- name: Facts about defaul VPC
+  ec2_vpc_net_facts:
+    filters:
+      isDefault: "true"
+    register: vpc_net_find

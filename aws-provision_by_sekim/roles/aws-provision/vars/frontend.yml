@@ -1,0 +1,12 @@
+---
+instance_name: frontend
+#
+# IAM GROUP
+#
+instance_group_name: frontends
+#
+# Security Group
+#
+#security_name: default
+security_name: frontend_servers
+ansible_aws_region: ap-northeast-2
