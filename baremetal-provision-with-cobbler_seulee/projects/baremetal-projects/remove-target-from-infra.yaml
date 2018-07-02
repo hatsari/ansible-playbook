@@ -1,0 +1,15 @@
+---
+- name: Post-configure infra nodes for the provisioning of bare-metal
+
+  hosts: infra
+
+  tasks:
+  - name: List target-node(s) in cobbler
+    command: cobbler system list
+
+  - name: Remove target-node(s) from cobbler
+    command: cobbler system remove --name=TEST01
+
+  - name: List target-node(s) in cobbler
+    command: cobbler system list
+...

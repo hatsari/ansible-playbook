@@ -1,0 +1,8 @@
+---
+- name: check ping status
+  hosts: infra
+  tasks:
+  - name: Pause Playbook for 5 seconds
+    pause:
+      seconds: 5
+      #prompt: "Enter a secret"

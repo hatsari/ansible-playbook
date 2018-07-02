@@ -1,0 +1,8 @@
+---
+- name: playbook to manager target nodes
+  gather_facts: no
+  hosts: ipmi
+  tasks:
+  - name: Start the target-node
+    command: virsh start TEST01
+...

@@ -1,0 +1,20 @@
+[all:vars]
+ansible_connection=ssh
+ansible_user=root
+ansible_ssh_pass=jdngajdw73
+ansible_port=22
+ 
+ 
+[cloud]
+infra ansible_host=192.168.253.53
+ipmi  ansible_host=192.168.253.1
+ 
+ 
+[tower]
+ansible01 ansible_host=192.168.253.51
+ 
+ 
+[bare-metal]
+test01 ansible_host=172.16.253.251
+test02 ansible_host=172.16.253.252
+test03 ansible_host=172.16.253.253

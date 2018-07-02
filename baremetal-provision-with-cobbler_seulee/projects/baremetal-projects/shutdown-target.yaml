@@ -1,0 +1,8 @@
+---
+- name: playbook to manage target nodes
+  gather_facts: no
+  hosts: ipmi
+  tasks:
+  - name: Shutdown the target-node
+    command: virsh shutdown TEST01
+...

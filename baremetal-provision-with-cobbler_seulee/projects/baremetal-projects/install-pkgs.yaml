@@ -1,0 +1,9 @@
+---
+- name: Install packages given by users
+  hosts: test01
+  tasks:
+  - name: install package
+    yum:
+      name: NetworkManager-glib
+      state: installed
+...

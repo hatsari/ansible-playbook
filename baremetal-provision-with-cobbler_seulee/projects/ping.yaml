@@ -1,0 +1,7 @@
+---
+- name: SKT playbook - 'ping' check
+  hosts: all
+  tasks:
+  - name: Ping check
+    ping:
+...

@@ -1,0 +1,35 @@
+---
+- name: Set the static IP to the given interface
+  hosts: test01
+  gather_facts: no
+  tasks:
+  - name: ifdown the given interface
+    command: ifdown eth1
+  - name: Set BOOTPROTO to static
+    lineinfile:
+      path: '/etc/sysconfig/network-scripts/ifcfg-eth1'
+      regexp: 'BOOTPROTO'
+      line: 'BOOTPROTO=static'
+  - name: Set ONBOOT to yes
+    lineinfile:
+      path: '/etc/sysconfig/network-scripts/ifcfg-eth1'
+      regexp: 'ONBOOT'
+      line: 'ONBOOT=yes'
+  - name: Set IPADDR 
+    lineinfile:
+      path: '/etc/sysconfig/network-scripts/ifcfg-eth1'
+      regexp: 'IPADDR'
+      line: 'IPADDR=192.168.253.251'
+  - name: Set PREFIX 
+    lineinfile:
+      path: '/etc/sysconfig/network-scripts/ifcfg-eth1'
+      regexp: 'PREFIX'
+      line: 'PREFIX=24'
+  - name: Set GATEWAY 
+    lineinfile:
+      path: '/etc/sysconfig/network-scripts/ifcfg-eth1'
+      regexp: 'GATEWAY'
+      line: 'GATEWAY=192.168.253.1'
+  - name: ifup the given interface
+    command: ifup eth1
+...

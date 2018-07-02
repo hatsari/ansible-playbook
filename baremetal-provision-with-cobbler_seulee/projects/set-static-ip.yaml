@@ -1,0 +1,13 @@
+---
+- name: Set the static IP to the given interface
+  hosts: test01
+  tasks:
+  - name: Set IPv4 to the interface
+    nmcli:
+      conn_name: eth1
+      ifname: eth1
+      type: ethernet
+      ip4: 192.168.253.251/24
+      gw4: 192.168.253.1
+      state: present
+...

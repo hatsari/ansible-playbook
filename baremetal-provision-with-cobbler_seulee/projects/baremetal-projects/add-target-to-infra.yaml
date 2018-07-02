@@ -1,0 +1,15 @@
+---
+- name: Pre-configure infra nodes for the provisioning of bare-metal
+
+  hosts: infra
+
+  tasks:
+  - name: List target-node(s) in cobbler
+    command: cobbler system list
+
+  - name: Add target-node to cobbler
+    command: cobbler system add --name=TEST01 --mac=52:54:00:42:d9:0e --ip-address=172.16.253.251 --netmask=255.255.255.0 --if-gateway=172.16.253.1 --profile=RHEL74-x86_64 --interface=eth0 --static=STATIC --hostname=test01.thinkmore.net
+
+  - name: List target-node(s) in cobbler
+    command: cobbler system list
+...

@@ -1,0 +1,9 @@
+---
+- name: SKT playbook
+  hosts: infra
+  tasks:
+  - name: Ping check
+    ping:
+  - name: Check hostname
+    command: hostname
+...

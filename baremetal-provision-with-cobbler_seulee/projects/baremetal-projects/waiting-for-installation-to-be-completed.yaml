@@ -1,0 +1,8 @@
+---
+- name: playbook - Waiting for the target-node to be rebooted
+  hosts: test01
+  gather_facts: no
+  tasks:
+  - name: Waiting for the target-node to be on
+    local_action: wait_for host=172.16.253.251 port=22 state=started delay=3 timeout=300
+...

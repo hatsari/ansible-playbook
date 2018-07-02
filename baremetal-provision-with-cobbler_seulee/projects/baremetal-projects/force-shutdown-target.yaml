@@ -1,0 +1,8 @@
+---
+- name: playbook to manage target nodes
+  gather_facts: no
+  hosts: ipmi
+  tasks:
+  - name: Forcely shutdown the target-node
+    command: virsh destroy TEST01
+...
