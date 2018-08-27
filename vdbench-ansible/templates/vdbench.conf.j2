@@ -1,0 +1,40 @@
+
+
+hd=default,user=root,shell=ssh,vdbench={{ vd_exec_path }}
+{% for host in ansible_play_hosts %}
+hd={{ host }}, system={{ host }}
+{% endfor %}
+
+fsd=fsd0,anchor={{ anchor_dir }},depth=2,width=10,file=10,size=1MB
+
+######### print number
+#{% for host,num in ansible_play_hosts|zip(range(ansible_play_hosts|length)) %}
+#{{ num }}
+#{% endfor %}
+
+# fwd to create test files
+{% for host,num in ansible_play_hosts|zip(range(ansible_play_hosts|length)) %}
+fwd=fwd{{ num }},host={{ host }},fsd=fsd0,operation=create,xfersize=256k,fileio=sequential,threads=1
+{% endfor %}
+
+# fwd to read and write operation
+{% for host,num in ansible_play_hosts|zip(range(ansible_play_hosts|length, ansible_play_hosts|length*3,2)) %}
+fwd=fwd{{ num + 0 }},host={{ host }},fsd=fsd0,operation=read,xfersize=256k,fileio=sequential,threads=1
+fwd=fwd{{ num + 1 }},host={{ host }},fsd=fsd0,operation=write,xfersize=256k,fileio=sequential,threads=1
+{% endfor %}
+
+# job to create test environment on each nodes
+rd=rd0,fwd=({% for num in range(ansible_play_hosts|length) %}fwd{{num}},{% endfor %}),fwdrate=max,format=yes,interval=1
+
+# job to read and write operation on each nodes
+{% for num3 in range(ansible_play_hosts|length, ansible_play_hosts|length*3) %}
+rd=rd{{ num3 }},fwd=(fwd{{ num3 }}),fwdrate=max,format=no,interval=1,elapsed=10
+{% endfor %}
+
+
+## original contents
+#rd=rd1,fwd=({% for num in range(1,ansible_play_hosts|length+1) %}fwd{{((num,)|string).rstrip(',')}}{% endfor %}),fwdrate=max,format=yes,interval=1
+#rd=rd1,fwd=(fwd1,fwd2),fwdrate=max,format=yes,interval=1
+#rd=rd2,fwd=(fwd3,fwd4),fwdrate=max,format=no,interval=1,elapsed=300
+#rd=rd3,fwd=(fwd5,fwd6),fwdrate=max,format=no,interval=1,elapsed=300
+

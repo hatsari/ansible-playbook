@@ -1,0 +1,41 @@
+---
+- name: vdbencn performance test
+  hosts: targets
+  vars:
+    - vd_path: /root/vdbench
+    - vd_exec_path: /root/vdbench/vdbench50407/
+    - anchor_dir: /mnt/iotest/a
+  tasks:
+    - name: install required packages
+      yum:
+        name: 
+          - unzip 
+          - java-1.8.0-openjdk.x86_64
+
+#    - name: "Build hosts file"
+#      lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" state=present
+#     when: hostvars[item].ansible_default_ipv4.address is defined
+#    with_items: groups['all']
+
+    - name: create /vdbench dir
+      file:
+        path: "{{ vd_path }}"
+        state: directory
+    - name: create anchor dir
+      file:
+        path: "{{ anchor_dir }}"
+        state: directory
+    - name: copy vdbench binary
+      unarchive:
+        src: files/vdbench50407.zip
+        dest: "{{ vd_path }}"
+        copy: true
+    - name: create vdbench conf
+      template:
+        src: templates/vdbench.conf.j2
+        dest: "{{ vd_path }}/vdbench.conf"
+    - name: run vdbench
+      shell: "{{ vd_exec_path }}/vdbench -f {{ vd_path }}/vdbench.conf -o {{vd_path}}/result"
+      delegate_to: localhost
+      run_once: true
+
