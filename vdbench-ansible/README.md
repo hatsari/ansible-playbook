@@ -119,7 +119,7 @@ ansible-playbook -i hosts vdbench-auto.yaml
 
 ## 실형 결과 분석 방법
 ### IOPS & Throughput 결과
-![vdbench result](images/vdbench-result.png]
+![vdbench result](images/vdbench-result.png)
 
 RD 작업에서 read 를 수행했으며, 
 - 평균 IOPS: 1606.0, 
