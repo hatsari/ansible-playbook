@@ -1,0 +1,51 @@
+- os_security_group:
+    cloud: ospcloud
+    state: present
+    name: ICMP_and_SSH
+    description: ICMP and SSH enabled
+  tags:
+    - tested
+- os_security_group_rule:
+    cloud: ospcloud
+    security_group: ICMP_and_SSH
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+  tags:
+    - tested
+- os_security_group_rule:
+    cloud: ospcloud
+    security_group: ICMP_and_SSH
+    protocol: tcp
+    port_range_min: 80
+    port_range_max: 80
+    remote_ip_prefix: 0.0.0.0/0
+- os_security_group_rule:
+    cloud: ospcloud
+    security_group: ICMP_and_SSH
+    protocol: tcp
+    port_range_min: 8080
+    port_range_max: 8080
+    remote_ip_prefix: 0.0.0.0/0
+- os_security_group_rule:
+    cloud: ospcloud
+    security_group: ICMP_and_SSH
+    protocol: icmp
+    remote_ip_prefix: 0.0.0.0/0
+  tags:
+    - tested
+- name: Generate key files
+  user:
+    name: "{{ ansible_env.USER }}"
+    generate_ssh_key: yes
+    ssh_key_file: .ssh/test_id_rsa
+  tags:
+    - tested
+- os_keypair:
+    cloud: ospcloud
+    state: present
+    name: ansible_ssh
+    public_key_file: "{{ ansible_env.HOME }}/.ssh/test_id_rsa.pub"
+  tags:
+    - tested

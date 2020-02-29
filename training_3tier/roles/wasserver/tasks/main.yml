@@ -1,0 +1,61 @@
+---
+# tasks file for wasserver
+#
+#- name: deploy tomcat
+#  hosts: apps #  gather_facts: false
+#  become: true
+
+#tasks:
+- name: install tomcat
+  yum:
+    name: tomcat
+    state: latest
+- name: enable tomcat at boot
+  service:
+    name: tomcat
+    enabled: yes
+
+- name: create ansible tomcat directory
+  file:
+    path: /usr/share/tomcat/webapps/{{ item }}
+    state: directory
+  with_items:
+    - ROOT
+    - ansible
+
+- name: copy static index.html to tomcat webapps/ansible/index.html
+  template:
+    src: index.html.j2
+    dest: /usr/share/tomcat/webapps/{{ item }}/index.html
+    mode: 0644
+  with_items:
+    - ROOT
+    - ansible
+  
+- name: start tomcat
+  service:
+    name: tomcat
+    state: started
+
+- name: flush iptables
+  shell: "iptables -F"
+
+#- name: open the network port 8080
+#  firewalld:
+#    port: 8080/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#
+#- name: open the network port 80
+#  firewalld:
+#    port: 80/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#- name: open the network port 22
+#  firewalld:
+#    port: 22/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true

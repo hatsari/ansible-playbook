@@ -1,0 +1,30 @@
+---
+# tasks file for common
+#  tasks:
+- name: enable repos
+  template:
+    src: ./open_three-tier-app.repo
+    dest: /etc/yum.repos.d/open_three-tier-app.repo
+    mode: 0644
+
+#- name: open the network port 22
+#  firewalld:
+#    port: 22/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#
+#- name: open the network port 80
+#  firewalld:
+#    port: 80/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#
+#- name: open the network port 8080
+#  firewalld:
+#    port: 8080/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#

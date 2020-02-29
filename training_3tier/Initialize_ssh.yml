@@ -1,0 +1,23 @@
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+  vars:
+    OSPGUID: 5836  ### this value should be gotten from extra_vars
+  tasks:
+    - name: create ssh config for jumphost in tower
+      copy:
+        content: |
+          Host workstation-{{ OSPGUID }}.rhpds.opentlc.com
+           Hostname workstation-{{ OSPGUID }}.rhpds.opentlc.com
+           ForwardAgent yes
+           User cloud-user
+           StrictHostKeyChecking no
+           PasswordAuthentication no
+          Host 10.10.10.*
+           User cloud-user
+           ProxyCommand ssh -F ./ssh.cfg cloud-user@workstation-{{ OSPGUID }}.rhpds.opentlc.com -W %h:%p -v
+           StrictHostKeyChecking no
+        dest: "./ssh.cfg"
+        mode: 0400
+        owner: "{{ ansible_env.USER }}"

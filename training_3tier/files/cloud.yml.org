@@ -1,0 +1,14 @@
+## file location: /etc/openstack/cloud.yml
+clouds:
+  ospcloud:
+    auth:
+      auth_url: http://1.1.1.20:5000/
+      password: password
+      project_name: admin
+      username: admin
+    identity_api_version: '3.0'
+    region_name: RegionOne
+ansible:
+  use_hostnames: True
+  expand_hostvars: False
+  fail_on_errors: True

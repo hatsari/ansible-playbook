@@ -1,0 +1,5 @@
+---
+# tasks file for roles/osp
+- include_tasks: osp_create_network.yml
+- include_tasks: osp_create_flavor.yml
+- include_tasks: osp_create_security.yml

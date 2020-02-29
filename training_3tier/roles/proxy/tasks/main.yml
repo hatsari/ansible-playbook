@@ -1,0 +1,48 @@
+---
+# tasks file for proxy
+#- name: deploy haproxy
+#  hosts: frontends
+#  gather_facts: false # remove later! speeds up testing
+#  become: true
+
+#tasks:
+- name: install HAProxy
+  yum:
+    name: haproxy 
+    state: latest
+- name: enable HAProxy
+  service:
+    name: haproxy
+    state: started
+- name: configure haproxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+- name: restart HAproxy
+  service:
+    name: haproxy
+    state: restarted
+
+- name: flush iptables
+  shell: "iptables -F"
+
+#- name: open the network port 22
+#  firewalld:
+#    port: 22/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#
+#- name: open the network port 8080
+#  firewalld:
+#    port: 8080/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#
+#- name: open the network port 80
+#  firewalld:
+#    port: 80/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true

@@ -1,0 +1,71 @@
+---
+- name: gather instances information
+  hosts: jumpbox
+  gather_facts: false
+  tasks:
+    - name: gather OSP instance info if instance is not included in inventory 
+      block:
+        - name: Fetch Instance Info
+          os_server_facts:
+            cloud: ospcloud
+            region_name: RegionOne
+          register: result
+        - name: Add host to
+          add_host:
+            name: "{{ item.public_v4 }}"
+            group: "{{ item.metadata.group }}"
+          with_items: "{{result.ansible_facts.openstack_servers}}"
+          changed_when: false
+          
+        - name: Add host
+          add_host:
+            name: "{{ item.public_v4 }}"
+            group: "{{ item.metadata.deployment_name }}"
+          with_items: "{{result.ansible_facts.openstack_servers}}"
+          changed_when: false
+      when: hostvars['app1'] is undefined
+      
+- name: configuration
+  hosts: appdbs:apps:frontends
+  gather_facts: false # remove later! speeds up testing
+  become: true
+  roles:
+    - common
+
+- name: configure dbserver
+  hosts: appdbs
+  gather_facts: false # remove later! speeds up testing
+  become: true
+  roles:
+    - dbserver
+
+- name: configure wasserver and webserver
+  hosts: apps
+  gather_facts: false # remove later! speeds up testing
+  become: true
+  roles:
+    - wasserver
+    - webserver
+
+- name: configure frontends
+  hosts: frontends
+  gather_facts: false # remove later! speeds up testing
+  become: true
+  roles:
+    - proxy
+
+- name: smoking test 
+  hosts: jumpbox
+  tasks:
+    - name: connection test to frontend
+      uri:
+        url: "http://{{ hostvars[ item ]['inventory_hostname']}}"
+        return_content: yes
+      with_items:
+        - "{{ groups['frontends']}}"
+      register: webpage
+
+    - name: Fail if 'Ansible' string is not in the page content
+      fail:
+        msg: "smoking test is failed, all instance will be destroyed"
+      when: "'Ansible' not in webpage.results[0].content"

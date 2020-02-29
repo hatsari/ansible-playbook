@@ -1,0 +1,6 @@
+---
+- name: clear 3 tier apps
+  hosts: frontends,apps,appdbs
+  gather_facts: false
+  roles:
+    - cleaner

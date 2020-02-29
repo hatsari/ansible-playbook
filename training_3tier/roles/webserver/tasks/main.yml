@@ -1,0 +1,43 @@
+---
+# tasks file for webserver
+#- name: deploy apache
+#  hosts: apps
+#  gather_facts: false
+#  become: true
+#
+#tasks:
+- name: install apache
+  yum:
+    name: httpd
+    state: latest
+- name: enable apache at boot
+  service:
+    name: httpd
+    enabled: yes
+- name: start apache
+  service:
+    name: httpd
+    state: started
+
+- name: flush iptables
+  shell: "iptables -F"
+
+#- name: open the network port 8080
+#  firewalld:
+#    port: 8080/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#
+#- name: open the network port 80
+#  firewalld:
+#    port: 80/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
+#- name: open the network port 22
+#  firewalld:
+#    port: 22/tcp
+#    permanent: true
+#    state: enabled
+#    immediate: true
