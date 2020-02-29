@@ -1,0 +1,6 @@
+---
+- hosts: v1
+  remote_user: vagrant
+  become: yes
+  roles:
+    - Update_linux_to_prevent_meltdown

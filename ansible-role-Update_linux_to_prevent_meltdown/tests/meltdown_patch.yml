@@ -1,0 +1,50 @@
+---
+- name: update kernel, kernel-rt, libvirt, qumu-kvm, python and dracut to prevent meltdown
+  hosts: servers
+  vars:
+    - new_kernel: 3.10.0-693
+  become: true
+  tasks:
+    - name: set target version for RHEL or Centos 7
+      set_fact:
+        target_version: 3.10.0-693.11.6
+      when:
+        - ansible_os_family == "RedHat"
+        - ansible_distribution_major_version == "7"
+    
+    - name: set target version for RHEL or Centos 6
+      set_fact:
+        target_version: 2.6.32-696.18.7
+      when:
+        - ansible_os_family == "RedHat"
+        - ansible_distribution_major_version == "6"
+    
+#    - name: set target version for RHEL or Centos 5
+#      set_fact:
+#        target_version:
+#      when:
+#        - ansible_os_family == "RedHat"
+#        - ansible_distribution_major_version == "5"
+
+    - name: print current kernel version
+      debug:
+        msg: "Current Kernel version is {{ ansible_kernel }} and it should be more than {{ target_version }}"
+    
+    - name: update packages related to meltdown
+      command: yum update -y "{{ item }}"
+      with_items:
+        - kernel-{{ target_version }}
+        - kernel-rt
+        - libvirt
+        - qumu-kvm
+        - python
+      when: ansible_kernel | version_compare(target_version, '<')
+
+    - name: save installed kernel version
+      yum:
+        list: kernel
+      register: kernel_result
+        
+    - name: print installed kernel version
+      debug:
+        var: kernel_result
